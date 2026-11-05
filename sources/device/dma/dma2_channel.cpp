@@ -1,0 +1,23 @@
+#if __APPLE__
+#include <TargetConditionals.h>
+#endif
+
+#if TARGET_OS_IPHONE
+
+#include "avocado/device/dma/dma2_channel.h"
+#include "avocado/device/gpu/gpu.h"
+
+#else
+
+#include "device/dma/dma2_channel.h"
+#include "device/gpu/gpu.h"
+
+#endif // TARGET_OS_IPHONE
+
+namespace device::dma {
+DMA2Channel::DMA2Channel(Channel channel, System *sys, gpu::GPU *gpu) : DMAChannel(channel, sys), gpu(gpu) {}
+
+uint32_t DMA2Channel::readDevice() { return gpu->read(0); }
+
+void DMA2Channel::writeDevice(uint32_t data) { gpu->write(0, data); }
+}  // namespace device::dma
