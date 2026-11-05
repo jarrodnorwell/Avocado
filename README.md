@@ -14,7 +14,20 @@ PlayStation 1 emulator based on Avocado by [@jaczekanski](https://github.com/jac
 > [!NOTE]
 > Fixes
 
-- Fixed an issue where Disney's Atlantis: The Lost Empire would freeze during the tutorial
+- Fixes an issue where Disney's Atlantis: The Lost Empire would freeze during the tutorial
+
+> [!NOTE]
+> Updates
+
+- Updates most externals to their latest upstream versions
+
+> [!NOTE]
+> Miscellaneous
+
+- Restructure and simplification
+    - Added a TARGET_OS_IPHONE check for Cytrus support (unrelated)
+    - Restructured the externals, include and sources directories
+    - Transitioned to FetchContent for most externals
 
 ### Externals
 #### EventBus
