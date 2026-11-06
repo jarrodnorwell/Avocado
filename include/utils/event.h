@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EventBus/EventBus.h>
+#include <eventbus/EventBus.h>
 
 #include <string>
 

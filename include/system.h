@@ -106,6 +106,8 @@ struct System {
     std::array<uint8_t, SCRATCHPAD_SIZE> scratchpad;
     std::array<uint8_t, EXPANSION_SIZE> expansion;
 
+    uint16_t gt2_data{0};
+
     bool debugOutput = true;  // Print BIOS logs
     bool biosLoaded = false;
 

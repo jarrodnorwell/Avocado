@@ -204,6 +204,13 @@ INLINE T System::readMemory(uint32_t address) {
         return data;
     }
 
+    // NOTE (jarrodnorwell)
+    /*
+    Gran Turismo 2 (SCUS-94455) attempts to read 16-bit from 0x1F801130 thinking there's 4 timers
+    */
+    if (address == 0x1F801130 && sizeof(T) == sizeof(uint16_t))
+        return gt2_data; // 0
+
     fmt::print("[SYS] R Unhandled address at 0x{:08x}\n", address);
     cpu->busError();
 

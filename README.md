@@ -1,7 +1,7 @@
 <img src="assets/AppIcon.png" height=32 width=32 />
 
 # Avocado
-PlayStation 1 emulator based on Avocado by [@jaczekanski](https://github.com/jaczekanski)
+PlayStation 1 emulator built on Avocado by [@jaczekanski](https://github.com/jaczekanski)
 
 ## Building
 > Commands even a baby could run
@@ -15,6 +15,9 @@ PlayStation 1 emulator based on Avocado by [@jaczekanski](https://github.com/jac
 > Fixes
 
 - Fixes an issue where Disney's Atlantis: The Lost Empire would freeze during the tutorial
+    - Whitmore's tutorial can now be passed and the game played
+- Fixes an issue where Gran Turismo 2 (Arcade Mode) would not boot
+    - Boots and runs correctly but not thoroughly tested
 
 > [!NOTE]
 > Updates
@@ -32,6 +35,7 @@ PlayStation 1 emulator based on Avocado by [@jaczekanski](https://github.com/jac
 ### Externals
 #### EventBus
 - Restructure and simplification
+- Improved identifier and validation functions
 
 ## License
 Licensed under GPLv3
