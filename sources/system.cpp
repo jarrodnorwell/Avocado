@@ -206,7 +206,7 @@ INLINE T System::readMemory(uint32_t address) {
 
     // NOTE (jarrodnorwell)
     /*
-    Gran Turismo 2 (SCUS-94455) attempts to read 16-bit from 0x1F801130 thinking there's 4 timers
+    Gran Turismo 2 (SCUS-94455) attempts to read a 16-bit value from 0x1F801130 thinking there's 4 timers
     */
     if (address == 0x1F801130 && sizeof(T) == sizeof(uint16_t))
         return gt2_data; // 0

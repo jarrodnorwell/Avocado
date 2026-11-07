@@ -450,6 +450,14 @@ void SPU::write(uint32_t address, uint8_t data) {
         return;
     }
 
+    // NOTE (jarrodnorwell)
+    /*
+    Ape Escape 2 (SCUS-94423) attempts to write to the following SPU control registers
+    Ape Escape 2 (SCES-01564) attempts the same but the following code does not work
+    */
+    if (address >= 0x1f801da0 && address <= 0x1f801dbf)
+        return;
+
     if (address >= 0x1F801DA2 && address <= 0x1F801DA3) {  // Reverb Work area start
         reverbBase.write(address - 0x1F801DA2, data);
         if (address == 0x1F801DA3) {
