@@ -29,8 +29,6 @@ T clamp_bottom(T v, T bottom) {
     return v < bottom ? bottom : v;
 }
 
-inline float lerp(float a, float b, float t) { return a + t * (b - a); }
-
 // Convert normalized float to int16_t
 inline int16_t floatToInt(float val) {
     if (val >= 0) {

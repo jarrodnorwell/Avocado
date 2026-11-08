@@ -5,6 +5,13 @@ project(Avocado LANGUAGES CXX)
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_CRT_SECURE_NO_WARNINGS")
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
+if (MSVC OR UNIX)
+    if (UNIX)
+        add_compile_options(-Wall -Wextra -Wno-unused-variable)
+        set(OpenGL_GL_PREFERENCE GLVND)
+    endif()
 
     find_package(OpenGL REQUIRED)
 endif()
@@ -40,14 +47,14 @@ FetchContent_MakeAvailable(miniz)
 FetchContent_Declare(nlohmann_json GIT_REPOSITORY https://github.com/nlohmann/json GIT_TAG develop)
 FetchContent_MakeAvailable(nlohmann_json)
 
-FetchContent_Declare(SDL2 GIT_REPOSITORY https://github.com/libsdl-org/sdl GIT_TAG 25f9ed87ff6947d9576fc9d79dee0784e638ac58)
 set(SDL_SHARED ON CACHE BOOL "" FORCE)
 set(SDL_STATIC OFF CACHE BOOL "" FORCE)
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(SDL2)
-
-if (MSVC)
-    target_compile_options(SDL2 PRIVATE $<$<CONFIG:Debug>:/RTC->)
+if (UNIX)
+    find_package(SDL2 REQUIRED)
+else()
+    FetchContent_Declare(SDL2 GIT_REPOSITORY https://github.com/libsdl-org/sdl GIT_TAG 25f9ed87ff6947d9576fc9d79dee0784e638ac58)
+    FetchContent_MakeAvailable(SDL2)
 endif()
 
 FetchContent_Declare(zlib GIT_REPOSITORY https://github.com/madler/zlib GIT_TAG develop)
@@ -117,7 +124,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(${PROJECT_NAME} assets/app.rc)
 
-if (MSVC)
+if (MSVC OR UNIX)
     set(BUILD_INFO_FILE "${CMAKE_SOURCE_DIR}/include/version.h")
 
     add_custom_target(GenerateBuildInfo ALL
@@ -285,7 +292,7 @@ set(SOURCES
     sources/system_tools.cpp
 )
 
-if (MSVC)
+if (MSVC OR UNIX)
     list(APPEND SOURCES
         sources/platform/windows/config_parser.cpp
         sources/platform/windows/main.cpp
