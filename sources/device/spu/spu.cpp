@@ -32,6 +32,7 @@
 
 #include <array>
 #include <functional>
+#include <utility>
 #include <vector>
 
 #include <fmt/core.h>
@@ -455,8 +456,16 @@ void SPU::write(uint32_t address, uint8_t data) {
     Ape Escape 2 (SCUS-94423) attempts to write to the following SPU control registers
     Ape Escape 2 (SCES-01564) attempts the same but the following code does not work
     */
-    if (address >= 0x1f801da0 && address <= 0x1f801dbf)
-        return;
+   std::vector<std::pair<uint32_t, int>> unhandled{
+       { 0x1f801da0, 2 },
+       { 0x1f801dae, 2 },
+       { 0x1f801db8, 8 }
+   };
+
+   if (std::any_of(unhandled.begin(), unhandled.end(), [address](const auto& test) {
+       return address >= test.first && address < (test.first + test.second);
+   }))
+       return;
 
     if (address >= 0x1F801DA2 && address <= 0x1F801DA3) {  // Reverb Work area start
         reverbBase.write(address - 0x1F801DA2, data);

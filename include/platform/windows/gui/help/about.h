@@ -1,12 +1,24 @@
 #pragma once
 
-namespace gui::help {
-class About {
-    void aboutWindow();
+#include <string_view>
 
-   public:
-    bool aboutWindowOpen = false;
+#include "platform/windows/gui/window.h"
 
-    void displayWindows();
+namespace avocado {
+
+    namespace gui {
+
+        struct About : public Window {
+            bool open{ false };
+
+            virtual void design() override;
+            virtual void display() override;
+
+        private:
+            void PropertyRow(const char*, std::string_view, bool = true);
+            void SectionHeader(const char*);
+        };
+
+    };
+
 };
-}  // namespace gui::help

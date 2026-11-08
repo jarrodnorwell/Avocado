@@ -42,7 +42,7 @@ class GUI {
     gui::options::MemoryCard memoryCardOptions;
     gui::options::System systemOptions;
 
-    gui::help::About aboutHelp;
+    avocado::gui::About about;
 
     gui::Toasts toasts;
 

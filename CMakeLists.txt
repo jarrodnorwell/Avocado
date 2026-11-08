@@ -118,6 +118,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(${PROJECT_NAME} assets/app.rc)
 
 if (MSVC)
+    set(BUILD_INFO_FILE "${CMAKE_SOURCE_DIR}/include/version.h")
+
+    add_custom_target(GenerateBuildInfo ALL
+        COMMAND ${CMAKE_COMMAND}
+            "-DSOURCE_DIR=${CMAKE_SOURCE_DIR}"
+            "-DOUTPUT_FILE=${BUILD_INFO_FILE}"
+            "-DBUILD_ARCH=${CMAKE_SYSTEM_PROCESSOR}"
+            -P "${CMAKE_SOURCE_DIR}/cmake/GenerateBuildInfo.cmake"
+        BYPRODUCTS "${BUILD_INFO_FILE}"
+        VERBATIM
+    )
+
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:zlib>
@@ -131,6 +143,11 @@ if (MSVC)
         $<TARGET_FILE_DIR:Avocado>
         COMMENT "Copying SDL shared library to execution directory..."
     )
+    
+    # target_link_options(${PROJECT_NAME} PRIVATE 
+    #     $<$<NOT:$<CONFIG:Debug>>:/SUBSYSTEM:WINDOWS>
+    #     $<$<NOT:$<CONFIG:Debug>>:/ENTRY:mainCRTStartup>
+    # )
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE include externals/stb)

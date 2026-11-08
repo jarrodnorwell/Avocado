@@ -179,7 +179,7 @@ int main(int argc, char** argv) {
 
     auto opengl = std::make_unique<OpenGL>();
 
-    SDL_Window* window = SDL_CreateWindow("Avocado", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, OpenGL::resWidth, OpenGL::resHeight,
+    SDL_Window* window = SDL_CreateWindow("Avocado", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, OpenGL::resWidth * 2, OpenGL::resHeight * 2,
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
     if (window == nullptr) {
         fatalError(fmt::format("Cannot create window ({})", SDL_GetError()));

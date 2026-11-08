@@ -1,0 +1,133 @@
+cmake_minimum_required(VERSION 4.0)
+
+execute_process(
+    COMMAND git rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_VARIABLE BUILD_BRANCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_VARIABLE BUILD_COMMIT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+execute_process(
+    COMMAND git rev-parse HEAD
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_VARIABLE BUILD_COMMIT_FULL
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+execute_process(
+    COMMAND git rev-list --count HEAD
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_VARIABLE BUILD_COMMIT_COUNT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+execute_process(
+    COMMAND git log -1 --format=%cI
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_VARIABLE BUILD_COMMIT_DATE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+execute_process(
+    COMMAND git log -1 --format=%s
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_VARIABLE BUILD_COMMIT_SUBJECT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+execute_process(
+    COMMAND git remote get-url origin
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_VARIABLE BUILD_REMOTE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+execute_process(
+    COMMAND git status --porcelain
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_VARIABLE GIT_STATUS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+if(GIT_STATUS)
+    set(BUILD_DIRTY "true")
+else()
+    set(BUILD_DIRTY "false")
+endif()
+
+execute_process(
+    COMMAND git describe --tags --exact-match HEAD
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_VARIABLE BUILD_TAG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+
+string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S")
+
+if(NOT BUILD_ARCH)
+    set(BUILD_ARCH "UNKNOWN-ARCH")
+endif()
+
+if(NOT BUILD_BRANCH)
+    set(BUILD_BRANCH "UNKNOWN-BRANCH")
+endif()
+
+if(NOT BUILD_COMMIT)
+    set(BUILD_COMMIT "UNKNOWN-COMMIT")
+endif()
+
+foreach(VAR
+    BUILD_ARCH
+    BUILD_BRANCH
+    BUILD_COMMIT
+    BUILD_COMMIT_FULL
+    BUILD_COMMIT_COUNT
+    BUILD_COMMIT_DATE
+    BUILD_COMMIT_SUBJECT
+    BUILD_REMOTE
+    BUILD_TAG
+    BUILD_DATE
+)
+    string(REPLACE "\\" "\\\\" ${VAR} "${${VAR}}")
+    string(REPLACE "\"" "\\\"" ${VAR} "${${VAR}}")
+endforeach()
+
+file(WRITE "${OUTPUT_FILE}"
+"#pragma once
+
+#define BUILD_ARCH \"${BUILD_ARCH}\"
+
+#define BUILD_BRANCH \"${BUILD_BRANCH}\"
+
+#define BUILD_COMMIT \"${BUILD_COMMIT}\"
+#define BUILD_COMMIT_FULL \"${BUILD_COMMIT_FULL}\"
+#define BUILD_COMMIT_COUNT ${BUILD_COMMIT_COUNT}
+
+#define BUILD_TAG \"${BUILD_TAG}\"
+#define BUILD_COMMIT_DATE \"${BUILD_COMMIT_DATE}\"
+#define BUILD_COMMIT_SUBJECT \"${BUILD_COMMIT_SUBJECT}\"
+
+#define BUILD_REMOTE \"${BUILD_REMOTE}\"
+
+#define BUILD_DIRTY ${BUILD_DIRTY}
+
+#define BUILD_DATE \"${BUILD_DATE}\"
+
+#define BUILD_STRING BUILD_BRANCH \"-\" BUILD_COMMIT \" (\" BUILD_DATE \") \" ${BUILD_DIRTY_SUFFIX}
+")

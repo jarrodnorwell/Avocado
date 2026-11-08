@@ -245,7 +245,7 @@ void GUI::mainMenu(std::unique_ptr<System>& sys) {
         ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Help")) {
-        ImGui::MenuItem("About", nullptr, &aboutHelp.aboutWindowOpen);
+        ImGui::MenuItem("About", nullptr, &about.open);
         ImGui::EndMenu();
     }
 
@@ -306,7 +306,7 @@ void GUI::render(std::unique_ptr<System>& sys) {
         systemOptions.displayWindows();
 
         // Help
-        aboutHelp.displayWindows();
+        about.display();
     }
 
     toasts.display();
