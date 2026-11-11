@@ -15,6 +15,8 @@
 #include "disc/load.h"
 #include "memory_card/card_formats.h"
 
+#include <cmath>
+
 float GUI::scale = 1.f;
 
 GUI::GUI(SDL_Window *window, void *glContext) : window(window)
@@ -545,9 +547,8 @@ void GUI::drawControls(std::unique_ptr<System> &sys)
     {
         alpha = 1.f;
     }
-    else if (timeDiff < visibleFor + fadeoutDuration)
-    {
-        alpha = lerp(1.f, 0.f, (timeDiff - visibleFor) / fadeoutDuration);
+    else if (timeDiff < visibleFor + fadeoutDuration) {
+        alpha = std::lerp(1.f, 0.f, (timeDiff - visibleFor) / fadeoutDuration);
     }
     else
     {
