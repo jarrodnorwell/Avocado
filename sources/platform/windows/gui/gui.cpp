@@ -657,7 +657,7 @@ void GUI::renderController()
         // AddImage(ImTextureID user_texture_id, const ImVec2& p_min, const ImVec2& p_max, const ImVec2& uv_min = ImVec2(0, 0), const
         // ImVec2& uv_max = ImVec2(1, 1), ImU32 col = IM_COL32_WHITE);
         float x = ImGui::GetIO().DisplaySize.x * _x;
-        float y = ImGui::GetIO().DisplaySize.y * lerp(0.3f, 0.6f, _y);
+        float y = ImGui::GetIO().DisplaySize.y * std::lerp(0.3f, 0.6f, _y);
         float r = size / 2 * 1.2;
 
         drawList->AddCircleFilled(ImVec2(x, y), r, ImColor(0, 0, 0, 128));
