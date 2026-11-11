@@ -66,8 +66,10 @@ execute_process(
 
 if(GIT_STATUS)
     set(BUILD_DIRTY "true")
+    set(BUILD_IS_RELEASE false)
 else()
     set(BUILD_DIRTY "false")
+    set(BUILD_IS_RELEASE true)
 endif()
 
 execute_process(
@@ -103,6 +105,7 @@ foreach(VAR
     BUILD_REMOTE
     BUILD_TAG
     BUILD_DATE
+    BUILD_IS_RELEASE
 )
     string(REPLACE "\\" "\\\\" ${VAR} "${${VAR}}")
     string(REPLACE "\"" "\\\"" ${VAR} "${${VAR}}")
@@ -126,6 +129,7 @@ file(WRITE "${OUTPUT_FILE}"
 #define BUILD_REMOTE \"${BUILD_REMOTE}\"
 
 #define BUILD_DIRTY ${BUILD_DIRTY}
+#define BUILD_IS_RELEASE ${BUILD_IS_RELEASE}
 
 #define BUILD_DATE \"${BUILD_DATE}\"
 

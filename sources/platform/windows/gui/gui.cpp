@@ -58,7 +58,7 @@ GUI::GUI(SDL_Window *window, void *glContext) : window(window)
     {
         // auto font = getFileContents(avocado::assetsPath("roboto-mono.ttf"));
         // io.Fonts->AddFontFromMemoryTTF(font.data(), font.size(), fontSize, &config);
-        io.Fonts->AddFontFromFileTTF(avocado::assetsPath("roboto-mono.ttf").c_str(), fontSize, &config);
+        io.Fonts->AddFontFromFileTTF(avocado::assetsPath("FragmentMono-Regular.ttf").c_str(), fontSize, &config);
     }
 
     {
@@ -104,6 +104,8 @@ GUI::GUI(SDL_Window *window, void *glContext) : window(window)
 GUI::~GUI()
 {
     bus.unlistenAll(busToken);
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 }
 

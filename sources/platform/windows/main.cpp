@@ -154,14 +154,11 @@ void changeWorkingDirectory()
     };
     avocado::PATH_USER = getAndroidExternalPath();
 #else
-    auto prefPath = fs::current_path() / "data";
-    if (!fs::exists(prefPath))
-        fs::create_directory(prefPath);
-
-    if (!prefPath.empty())
+    char *prefPath = SDL_GetPrefPath(nullptr, "avocado");
+    if (prefPath != nullptr)
     {
-        avocado::PATH_USER = prefPath.string();
-        // SDL_free(prefPath);
+        avocado::PATH_USER = prefPath;
+        SDL_free(prefPath);
     }
 #endif
     avocado::PATH_DATA = replaceAll(avocado::PATH_DATA, "\\", "/");
@@ -188,7 +185,7 @@ void changeWorkingDirectory()
         ensureDirectoryExist(fs::path(d));
     }
 
-    chdir(avocado::PATH_USER.c_str());
+    std::filesystem::current_path(avocado::PATH_USER.c_str());
 }
 
 int main(int argc, char **argv)

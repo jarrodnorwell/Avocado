@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 4.0)
 
-project(Avocado LANGUAGES CXX)
+project(Avocado LANGUAGES C CXX)
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_CRT_SECURE_NO_WARNINGS")
