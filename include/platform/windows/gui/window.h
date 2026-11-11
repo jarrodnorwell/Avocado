@@ -6,19 +6,23 @@
 
 #include <imgui.h>
 
-namespace avocado {
+namespace avocado
+{
 
-	namespace gui {
+    namespace gui
+    {
 
-		struct Window {
-			void Header(std::string_view title, std::string_view subtitle, std::optional<std::string> character, ImVec2 size = { 48.0f, 48.0f }) {
+        struct Window
+        {
+            void Header(std::string_view title, std::string_view subtitle, std::optional<std::string> character, ImVec2 size = {48.0f, 48.0f})
+            {
                 constexpr float titleScale = 1.5f;
 
                 const float contentWidth = ImGui::GetContentRegionAvail().x;
 
                 if (character.has_value())
                 {
-                    auto& value{ character.value() };
+                    auto &value{character.value()};
 
                     ImGui::Spacing();
                     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (contentWidth - size.x) * 0.5f);
@@ -55,12 +59,12 @@ namespace avocado {
                 ImGui::Spacing();
                 ImGui::Separator();
                 ImGui::Spacing();
-			};
+            };
 
-			virtual void design() = 0;
-			virtual void display() = 0;
-		};
+            virtual void design() = 0;
+            virtual void display() = 0;
+        };
 
-	};
+    };
 
 };

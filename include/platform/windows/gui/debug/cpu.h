@@ -10,38 +10,41 @@
 
 struct System;
 
-namespace gui::debug {
+namespace gui::debug
+{
 
-class CPU {
-    struct Watch {
-        uint32_t address;
-        int size;  // 1, 2, 4
-        std::string name;
+    class CPU
+    {
+        struct Watch
+        {
+            uint32_t address;
+            int size; // 1, 2, 4
+            std::string name;
+        };
+        std::vector<Watch> watches = {
+            {0x1F801070, 2, "ISTAT"},
+            {0x1F801074, 2, "IMASK"},
+        };
+
+        std::string addrInputBuffer;
+        uint32_t contextMenuAddress = 0;
+        uint32_t goToAddr = 0;
+        uint32_t prevPC = 0;
+
+        MemoryEditor editor;
+
+        void debuggerWindow(System *sys);
+        void breakpointsWindow(System *sys);
+        void watchWindow(System *sys);
+        void ramWindow(System *sys);
+
+    public:
+        bool debuggerWindowOpen = false;
+        bool breakpointsWindowOpen = false;
+        bool watchWindowOpen = false;
+        bool ramWindowOpen = false;
+
+        CPU();
+        void displayWindows(System *sys);
     };
-    std::vector<Watch> watches = {
-        {0x1F801070, 2, "ISTAT"},
-        {0x1F801074, 2, "IMASK"},
-    };
-
-    std::string addrInputBuffer;
-    uint32_t contextMenuAddress = 0;
-    uint32_t goToAddr = 0;
-    uint32_t prevPC = 0;
-
-    MemoryEditor editor;
-
-    void debuggerWindow(System* sys);
-    void breakpointsWindow(System* sys);
-    void watchWindow(System* sys);
-    void ramWindow(System* sys);
-
-   public:
-    bool debuggerWindowOpen = false;
-    bool breakpointsWindowOpen = false;
-    bool watchWindowOpen = false;
-    bool ramWindowOpen = false;
-
-    CPU();
-    void displayWindows(System* sys);
-};
-}  // namespace gui::debug
+} // namespace gui::debug

@@ -4,16 +4,17 @@
 
 #include <glad/glad.h>
 
-class Buffer {
+class Buffer
+{
     GLuint id;
 
-   public:
+public:
     static GLuint currentId;
 
     Buffer(size_t size);
     ~Buffer();
 
-    void update(int size, const void* data);
+    void update(int size, const void *data);
     void bind();
     GLuint get();
 };

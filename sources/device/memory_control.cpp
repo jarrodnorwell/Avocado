@@ -16,12 +16,14 @@
 
 #include <fmt/core.h>
 
-MemoryControl::MemoryControl() {
+MemoryControl::MemoryControl()
+{
     verbose = config.debug.log.memoryControl > 0;
     reset();
 }
 
-void MemoryControl::reset() {
+void MemoryControl::reset()
+{
     // TODO: Check reset values
     exp1Base._reg = 0;
     exp2Base._reg = 0;
@@ -34,19 +36,24 @@ void MemoryControl::reset() {
 }
 
 #define ADDR (address + 0x1f801000)
-#define READ(a, reg)                                                                                  \
-    if (ADDR >= (a) && ADDR < (a) + 4) {                                                              \
-        if (verbose && (ADDR & 3) == 3) fmt::print("[MEMCTRL] R @ " #reg ": 0x{:08x}\n", (reg)._reg); \
-        return (reg).read(ADDR - (a));                                                                \
+#define READ(a, reg)                                                      \
+    if (ADDR >= (a) && ADDR < (a) + 4)                                    \
+    {                                                                     \
+        if (verbose && (ADDR & 3) == 3)                                   \
+            fmt::print("[MEMCTRL] R @ " #reg ": 0x{:08x}\n", (reg)._reg); \
+        return (reg).read(ADDR - (a));                                    \
     }
-#define WRITE(a, reg)                                                                                 \
-    if (ADDR >= (a) && ADDR < (a) + 4) {                                                              \
-        (reg).write(ADDR - (a), data);                                                                \
-        if (verbose && (ADDR & 3) == 3) fmt::print("[MEMCTRL] W @ " #reg ": 0x{:08x}\n", (reg)._reg); \
-        return;                                                                                       \
+#define WRITE(a, reg)                                                     \
+    if (ADDR >= (a) && ADDR < (a) + 4)                                    \
+    {                                                                     \
+        (reg).write(ADDR - (a), data);                                    \
+        if (verbose && (ADDR & 3) == 3)                                   \
+            fmt::print("[MEMCTRL] W @ " #reg ": 0x{:08x}\n", (reg)._reg); \
+        return;                                                           \
     }
 
-uint8_t MemoryControl::read(uint32_t address) {
+uint8_t MemoryControl::read(uint32_t address)
+{
     READ(0x1F801000, exp1Base);
     READ(0x1F801004, exp2Base);
     READ(0x1F801008, exp1Config);
@@ -58,7 +65,8 @@ uint8_t MemoryControl::read(uint32_t address) {
     return 0;
 }
 
-void MemoryControl::write(uint32_t address, uint8_t data) {
+void MemoryControl::write(uint32_t address, uint8_t data)
+{
     WRITE(0x1F801000, exp1Base);
     WRITE(0x1F801004, exp2Base);
     WRITE(0x1F801008, exp1Config);

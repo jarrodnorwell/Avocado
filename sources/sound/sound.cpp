@@ -15,23 +15,29 @@
 #include <fmt/core.h>
 #include <SDL_audio.h>
 
-namespace Sound {
+namespace Sound
+{
     std::deque<uint16_t> buffer;
     std::mutex mutex;
-};  // namespace Sound
+}; // namespace Sound
 
-namespace {
+namespace
+{
     SDL_AudioDeviceID dev = 0;
 
-    void audioCallback(void* userdata, Uint8* raw_stream, int len) {
+    void audioCallback(void *userdata, Uint8 *raw_stream, int len)
+    {
         (void)userdata;
 
-        for (int i = 0; i < len; i++) raw_stream[i] = 0;
+        for (int i = 0; i < len; i++)
+            raw_stream[i] = 0;
 
         std::unique_lock<std::mutex> lock(Sound::mutex);
         size_t bufSize = Sound::buffer.size();
-        for (size_t i = 0; i < (size_t)len; i += 2) {
-            if (i / 2 >= bufSize) break;
+        for (size_t i = 0; i < (size_t)len; i += 2)
+        {
+            if (i / 2 >= bufSize)
+                break;
 
             int16_t sample = Sound::buffer.front();
             Sound::buffer.pop_front();
@@ -39,9 +45,10 @@ namespace {
             raw_stream[i + 1] = (sample >> 8) & 0xff;
         }
     }
-}  // namespace
+} // namespace
 
-void Sound::init() {
+void Sound::init()
+{
     SDL_AudioSpec desired = {}, obtained;
     desired.freq = 44100;
     desired.format = AUDIO_S16;
@@ -51,13 +58,14 @@ void Sound::init() {
 
     dev = SDL_OpenAudioDevice(NULL, 0, &desired, &obtained, 0);
 
-    if (dev == 0) {
+    if (dev == 0)
+    {
         fmt::print("SDL_OpenAudioDevice error: {}\n", SDL_GetError());
         return;
     }
 
-    if (obtained.freq != desired.freq || obtained.format != desired.format || obtained.channels != desired.channels
-        || obtained.samples != desired.samples) {
+    if (obtained.freq != desired.freq || obtained.format != desired.format || obtained.channels != desired.channels || obtained.samples != desired.samples)
+    {
         fmt::print("SDL_OpenAudio obtained audio spec is different from desired, audio might sound wrong.\n");
         return;
     }

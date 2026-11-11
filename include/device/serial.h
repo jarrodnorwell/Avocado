@@ -14,12 +14,13 @@
 
 #endif // TARGET_OS_IPHONE
 
-class Serial {
+class Serial
+{
     static const uint32_t BASE_ADDRESS = 0x1F801050;
     Reg32 status;
     Reg16 baud;
 
-   public:
+public:
     Serial();
     void reset();
     void step();
@@ -27,7 +28,8 @@ class Serial {
     void write(uint32_t address, uint8_t data);
 
     template <class Archive>
-    void serialize(Archive& ar) {
+    void serialize(Archive &ar)
+    {
         ar(status, baud);
     }
 };

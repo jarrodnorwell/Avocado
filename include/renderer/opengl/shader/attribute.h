@@ -4,10 +4,11 @@
 
 #include <glad/glad.h>
 
-class Attribute {
+class Attribute
+{
     GLuint id;
 
-   public:
+public:
     Attribute(GLuint id);
     ~Attribute();
 

@@ -4,14 +4,16 @@
 
 struct System;
 
-namespace gui::debug {
+namespace gui::debug
+{
 
-class IO {
-    void logWindow(System* sys);
+    class IO
+    {
+        void logWindow(System *sys);
 
-   public:
-    bool logWindowOpen = false;
+    public:
+        bool logWindowOpen = false;
 
-    void displayWindows(System* sys);
-};
-}  // namespace gui::debug
+        void displayWindows(System *sys);
+    };
+} // namespace gui::debug

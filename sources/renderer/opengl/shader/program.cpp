@@ -20,14 +20,18 @@ Program::Program(std::string name) { this->name = name; }
 
 Program::~Program() { destroy(); }
 
-void Program::destroy() {
-    if (programId == 0) return;
+void Program::destroy()
+{
+    if (programId == 0)
+        return;
     glDeleteProgram(programId);
     shaders.clear();
 }
 
-bool Program::load() {
-    if (!fileExists(name)) {
+bool Program::load()
+{
+    if (!fileExists(name))
+    {
         error = std::string("File doesn't exists.");
         return false;
     }
@@ -38,7 +42,8 @@ bool Program::load() {
     newShaders.push_back(Shader(name, ShaderType::Vertex));
 
     GLuint id = link(newShaders);
-    if (id == 0) return false;
+    if (id == 0)
+        return false;
 
     shaders = move(newShaders);
     programId = id;
@@ -46,13 +51,18 @@ bool Program::load() {
     return true;
 }
 
-GLuint Program::link(std::vector<Shader>& shaders) {
+GLuint Program::link(std::vector<Shader> &shaders)
+{
     GLuint id = glCreateProgram();
-    if (id == 0) return 0;
+    if (id == 0)
+        return 0;
 
-    for (Shader& s : shaders) {
-        if (s.isCompiled()) continue;
-        if (!s.compile()) {
+    for (Shader &s : shaders)
+    {
+        if (s.isCompiled())
+            continue;
+        if (!s.compile())
+        {
             error = s.getError();
             return false;
         }
@@ -63,7 +73,8 @@ GLuint Program::link(std::vector<Shader>& shaders) {
 
     GLint status;
     glGetProgramiv(id, GL_LINK_STATUS, &status);
-    if (status == false) {
+    if (status == false)
+    {
         std::string buffer;
         buffer.resize(1024);
         glGetProgramInfoLog(id, 1024, nullptr, &buffer[0]);
@@ -79,9 +90,12 @@ GLuint Program::get() { return programId; }
 
 std::string Program::getError() { return error; }
 
-bool Program::use() {
-    if (!initialized) return false;
-    if (programId == 0) {
+bool Program::use()
+{
+    if (!initialized)
+        return false;
+    if (programId == 0)
+    {
         error = std::string("Program not linked.");
         return false;
     }
@@ -89,13 +103,17 @@ bool Program::use() {
     return true;
 }
 
-Attribute Program::getAttrib(const char* name) {
-    if (!initialized) return 0;
-    if (auto key = attributes.find(name); key != attributes.end()) {
+Attribute Program::getAttrib(const char *name)
+{
+    if (!initialized)
+        return 0;
+    if (auto key = attributes.find(name); key != attributes.end())
+    {
         return key->second;
     }
     GLint loc = glGetAttribLocation(programId, name);
-    if (loc == -1) {
+    if (loc == -1)
+    {
         fmt::print("[GL] Cannot find attribute \"{}\" in program {}\n", name, this->name);
     }
     auto attribute = Attribute(loc);
@@ -104,13 +122,17 @@ Attribute Program::getAttrib(const char* name) {
     return attribute;
 }
 
-Uniform Program::getUniform(const char* name) {
-    if (!initialized) return 0;
-    if (auto key = uniforms.find(name); key != uniforms.end()) {
+Uniform Program::getUniform(const char *name)
+{
+    if (!initialized)
+        return 0;
+    if (auto key = uniforms.find(name); key != uniforms.end())
+    {
         return key->second;
     }
     GLint loc = glGetUniformLocation(programId, name);
-    if (loc == -1) {
+    if (loc == -1)
+    {
         fmt::print("[GL] Cannot find uniform \"{}\" in program {}\n", name, this->name);
     }
     auto uniform = Uniform(loc);

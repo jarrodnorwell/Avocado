@@ -14,9 +14,11 @@
 
 #endif // TARGET_OS_IPHONE
 
-namespace device::dma {
-class DMA5Channel : public DMAChannel {
-   public:
-    DMA5Channel(Channel channel, System* sys);
-};
-}  // namespace device::dma
+namespace device::dma
+{
+    class DMA5Channel : public DMAChannel
+    {
+    public:
+        DMA5Channel(Channel channel, System *sys);
+    };
+} // namespace device::dma

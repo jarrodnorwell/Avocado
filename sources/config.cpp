@@ -16,8 +16,9 @@
 #include <fmt/format.h>
 #include <fmt/format-inl.h>
 
-namespace DefaultKeyBindings {
-// clang-format off
+namespace DefaultKeyBindings
+{
+    // clang-format off
 KeyBindings none() {
     return {
         {"dpad_up",    ""},
@@ -169,30 +170,32 @@ KeyBindings mouse() {
         {"r_left",     ""},
     };
 }
-// clang-format on
-}  // namespace DefaultKeyBindings
+    // clang-format on
+} // namespace DefaultKeyBindings
 
-namespace DefaultHotkeys {
-KeyBindings keyboard() {
-    return {
-        {"toggle_menu", "keyboard|F1"},
-        {"reset", "keyboard|F2"},
-        {"close_tray", "keyboard|F3"},
-        {"quick_save", "keyboard|F5"},
-        {"single_frame", "keyboard|F6"},
-        {"quick_load", "keyboard|F7"}, 
-        {"single_step", "keyboard|F8"},
-        {"toggle_pause", "keyboard|Space"},
-        {"toggle_framelimit", "keyboard|Tab"},
-        {"rewind_state", "keyboard|Backspace"},
-        {"toggle_fullscreen", "keyboard|F4"}
-    };
-}
-}  // namespace DefaultHotkeys
+namespace DefaultHotkeys
+{
+    KeyBindings keyboard()
+    {
+        return {
+            {"toggle_menu", "keyboard|F1"},
+            {"reset", "keyboard|F2"},
+            {"close_tray", "keyboard|F3"},
+            {"quick_save", "keyboard|F5"},
+            {"single_frame", "keyboard|F6"},
+            {"quick_load", "keyboard|F7"},
+            {"single_step", "keyboard|F8"},
+            {"toggle_pause", "keyboard|Space"},
+            {"toggle_framelimit", "keyboard|Tab"},
+            {"rewind_state", "keyboard|Backspace"},
+            {"toggle_fullscreen", "keyboard|F4"}};
+    }
+} // namespace DefaultHotkeys
 
 avocado_config_t config;
 
-namespace avocado {
-std::string PATH_DATA = "data/";
-std::string PATH_USER = "data/";
-}  // namespace avocado
+namespace avocado
+{
+    std::string PATH_DATA = "data/";
+    std::string PATH_USER = "data/";
+} // namespace avocado

@@ -25,13 +25,17 @@
 #include <cstdint>
 #include <vector>
 
-namespace gui::debug {
-class GTE;
+namespace gui::debug
+{
+    class GTE;
 }
 
-class GTE {
-    union Flag {
-        enum {
+class GTE
+{
+    union Flag
+    {
+        enum
+        {
             IR0_SATURATED = 1 << 12,
             SY2_SATURATED = 1 << 13,
             SX2_SATURATED = 1 << 14,
@@ -53,8 +57,9 @@ class GTE {
             MAC1_OVERFLOW_POSITIVE = 1 << 30,
             FLAG = 1 << 31
         };
-        struct {
-            uint32_t : 12;  // Not used (0)
+        struct
+        {
+            uint32_t : 12; // Not used (0)
             uint32_t ir0_saturated : 1;
             uint32_t sy2_saturated : 1;
             uint32_t sx2_saturated : 1;
@@ -74,7 +79,7 @@ class GTE {
             uint32_t mac3_overflow_positive : 1;
             uint32_t mac2_overflow_positive : 1;
             uint32_t mac1_overflow_positive : 1;
-            uint32_t flag : 1;  // 30..23 + 18..13 bits ORed
+            uint32_t flag : 1; // 30..23 + 18..13 bits ORed
         };
         uint32_t reg = 0;
 
@@ -87,8 +92,8 @@ class GTE {
     int busToken;
     bool widescreenHack;
     bool logging;
-    bool sf;  // Used for setMac and setIr functions
-    bool lm;  // saved as fields to prevent passing them to every function
+    bool sf; // Used for setMac and setIr functions
+    bool lm; // saved as fields to prevent passing them to every function
 
     // GTE registers 0-63
     gte::Vector<int16_t> v[3];
@@ -97,8 +102,8 @@ class GTE {
     int16_t ir[4] = {0};
     gte::Vector<int16_t, int16_t, uint16_t> s[4];
     Reg32 rgb[3];
-    uint32_t res1 = 0;     // prohibited
-    int32_t mac[4] = {0};  // Sum of products
+    uint32_t res1 = 0;    // prohibited
+    int32_t mac[4] = {0}; // Sum of products
     int32_t lzcs = 0;
     int32_t lzcr = 0;
 
@@ -177,9 +182,15 @@ class GTE {
     void sqr();
     void op();
 
-   public:
-    struct GTE_ENTRY {
-        enum class MODE { read, write, func } mode;
+public:
+    struct GTE_ENTRY
+    {
+        enum class MODE
+        {
+            read,
+            write,
+            func
+        } mode;
 
         uint32_t n;
         uint32_t data;
@@ -191,10 +202,11 @@ class GTE {
 
     uint32_t read(uint8_t n);
     void write(uint8_t n, uint32_t d);
-    void command(gte::Command& cmd);
+    void command(gte::Command &cmd);
 
     template <class Archive>
-    void serialize(Archive& ar) {
+    void serialize(Archive &ar)
+    {
         ar(v);
         ar(rgbc);
         ar(otz);

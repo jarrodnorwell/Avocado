@@ -14,23 +14,32 @@
 
 #endif // TARGET_OS_IPHONE
 
-namespace peripherals {
-enum class Type { None, Digital, Analog, Mouse, MemoryCard };
-struct AbstractDevice {
-    Type type;
-    int port;  // Physical port number (numbered from 1..n)
-    int state = 0;
+namespace peripherals
+{
+    enum class Type
+    {
+        None,
+        Digital,
+        Analog,
+        Mouse,
+        MemoryCard
+    };
+    struct AbstractDevice
+    {
+        Type type;
+        int port; // Physical port number (numbered from 1..n)
+        int state = 0;
 
-    AbstractDevice(Type type, int port);
-    bool getAck();
-    void resetState();
+        AbstractDevice(Type type, int port);
+        bool getAck();
+        void resetState();
 
-    // Handle serial communication with console
-    virtual uint8_t handle(uint8_t byte) = 0;
+        // Handle serial communication with console
+        virtual uint8_t handle(uint8_t byte) = 0;
 
-    // Update key state
-    virtual void update();
+        // Update key state
+        virtual void update();
 
-    virtual ~AbstractDevice();
-};
-};  // namespace peripherals
+        virtual ~AbstractDevice();
+    };
+}; // namespace peripherals

@@ -2,19 +2,22 @@
 
 struct System;
 
-namespace spu {
-struct SPU;
+namespace spu
+{
+    struct SPU;
 };
 
-namespace gui::debug {
-class SPU {
-    bool showOpenDirectory = false;
+namespace gui::debug
+{
+    class SPU
+    {
+        bool showOpenDirectory = false;
 
-    void spuWindow(spu::SPU* spu);
+        void spuWindow(spu::SPU *spu);
 
-   public:
-    bool spuWindowOpen = false;
-    void displayWindows(System* sys);
-    void recordingWindow(spu::SPU* spu);
-};
-}  // namespace gui::debug
+    public:
+        bool spuWindowOpen = false;
+        void displayWindows(System *sys);
+        void recordingWindow(spu::SPU *spu);
+    };
+} // namespace gui::debug

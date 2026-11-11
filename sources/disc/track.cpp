@@ -12,4 +12,6 @@
 
 #endif // TARGET_OS_IPHONE
 
-namespace disc {}  // namespace disc
+namespace disc
+{
+} // namespace disc

@@ -18,9 +18,11 @@
 
 #include <string>
 
-namespace peripherals {
-struct None : public AbstractDevice {
-    None(int port);
-    uint8_t handle(uint8_t byte) override;
-};
-};  // namespace peripherals
+namespace peripherals
+{
+    struct None : public AbstractDevice
+    {
+        None(int port);
+        uint8_t handle(uint8_t byte) override;
+    };
+}; // namespace peripherals

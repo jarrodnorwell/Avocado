@@ -4,13 +4,18 @@
 
 #include <glad/glad.h>
 
-enum class ShaderType { Vertex, Fragment };
+enum class ShaderType
+{
+    Vertex,
+    Fragment
+};
 
-class Shader {
-   public:
-    static const char* header;
+class Shader
+{
+public:
+    static const char *header;
 
-   private:
+private:
     std::string error = "";
     std::string name;
     bool compiled = false;
@@ -19,7 +24,7 @@ class Shader {
 
     void destroy();
 
-   public:
+public:
     Shader(std::string name, ShaderType shaderType);
     ~Shader();
 

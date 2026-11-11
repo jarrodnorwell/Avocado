@@ -20,10 +20,12 @@
 
 #include <cstdint>
 
-#undef RGB  // Some header is adding this macro on Windows
+#undef RGB // Some header is adding this macro on Windows
 // Union for storing 24bit color (used in GPU commands)
-union RGB {
-    struct {
+union RGB
+{
+    struct
+    {
         uint8_t r;
         uint8_t g;
         uint8_t b;
@@ -36,12 +38,14 @@ union RGB {
     RGB(uint32_t raw) : raw(raw) {}
 };
 
-RGB operator*(const RGB& lhs, const float rhs);
-RGB operator+(const RGB& lhs, const RGB& rhs);
+RGB operator*(const RGB &lhs, const float rhs);
+RGB operator+(const RGB &lhs, const RGB &rhs);
 
 // Union for storing 15bit color + mask bit (native VRAM format)
-union PSXColor {
-    struct {
+union PSXColor
+{
+    struct
+    {
         uint16_t r : 5;
         uint16_t g : 5;
         uint16_t b : 5;
@@ -57,14 +61,16 @@ union PSXColor {
     PSXColor(uint16_t color) : raw(color) {}
 
     // 8bit input values
-    PSXColor(uint8_t r, uint8_t g, uint8_t b) {
+    PSXColor(uint8_t r, uint8_t g, uint8_t b)
+    {
         this->r = r >> 3;
         this->g = g >> 3;
         this->b = b >> 3;
         this->k = 0;
     }
 
-    PSXColor(RGB c) {
+    PSXColor(RGB c)
+    {
         this->r = c.r >> 3;
         this->g = c.g >> 3;
         this->b = c.b >> 3;
@@ -74,52 +80,56 @@ union PSXColor {
     // 5bit input values
     PSXColor(uint8_t r, uint8_t g, uint8_t b, uint8_t k) : r(r), g(g), b(b), k(k) {}
 
-    PSXColor operator*(const RGB& rhs) const {
-        return PSXColor(                               //
-            clamp_top<uint8_t>((rhs.r * r) >> 7, 31),  //
-            clamp_top<uint8_t>((rhs.g * g) >> 7, 31),  //
-            clamp_top<uint8_t>((rhs.b * b) >> 7, 31),  //
-            k                                          //
+    PSXColor operator*(const RGB &rhs) const
+    {
+        return PSXColor(                              //
+            clamp_top<uint8_t>((rhs.r * r) >> 7, 31), //
+            clamp_top<uint8_t>((rhs.g * g) >> 7, 31), //
+            clamp_top<uint8_t>((rhs.b * b) >> 7, 31), //
+            k                                         //
         );
     }
 
-    INLINE static PSXColor blend(const PSXColor& bg, const PSXColor& c, const gpu::SemiTransparency& transparency) {
-        switch (transparency) {
-            case gpu::SemiTransparency::Bby2plusFby2:
-                return PSXColor(                       //
-                    clamp_top((bg.r + c.r) >> 1, 31),  //
-                    clamp_top((bg.g + c.g) >> 1, 31),  //
-                    clamp_top((bg.b + c.b) >> 1, 31),  //
-                    c.k                                //
-                );
-            case gpu::SemiTransparency::BplusF:
-                return PSXColor(                //
-                    clamp_top(bg.r + c.r, 31),  //
-                    clamp_top(bg.g + c.g, 31),  //
-                    clamp_top(bg.b + c.b, 31),  //
-                    c.k                         //
-                );
-            case gpu::SemiTransparency::BminusF:
-                return PSXColor(                  //
-                    clamp_bottom(bg.r - c.r, 0),  //
-                    clamp_bottom(bg.g - c.g, 0),  //
-                    clamp_bottom(bg.b - c.b, 0),  //
-                    c.k                           //
-                );
-            case gpu::SemiTransparency::BplusFby4:
-                return PSXColor(                       //
-                    clamp_top(bg.r + (c.r >> 2), 31),  //
-                    clamp_top(bg.g + (c.g >> 2), 31),  //
-                    clamp_top(bg.b + (c.b >> 2), 31),  //
-                    c.k                                //
-                );
-            default:
-                return PSXColor{};
+    INLINE static PSXColor blend(const PSXColor &bg, const PSXColor &c, const gpu::SemiTransparency &transparency)
+    {
+        switch (transparency)
+        {
+        case gpu::SemiTransparency::Bby2plusFby2:
+            return PSXColor(                      //
+                clamp_top((bg.r + c.r) >> 1, 31), //
+                clamp_top((bg.g + c.g) >> 1, 31), //
+                clamp_top((bg.b + c.b) >> 1, 31), //
+                c.k                               //
+            );
+        case gpu::SemiTransparency::BplusF:
+            return PSXColor(               //
+                clamp_top(bg.r + c.r, 31), //
+                clamp_top(bg.g + c.g, 31), //
+                clamp_top(bg.b + c.b, 31), //
+                c.k                        //
+            );
+        case gpu::SemiTransparency::BminusF:
+            return PSXColor(                 //
+                clamp_bottom(bg.r - c.r, 0), //
+                clamp_bottom(bg.g - c.g, 0), //
+                clamp_bottom(bg.b - c.b, 0), //
+                c.k                          //
+            );
+        case gpu::SemiTransparency::BplusFby4:
+            return PSXColor(                      //
+                clamp_top(bg.r + (c.r >> 2), 31), //
+                clamp_top(bg.g + (c.g >> 2), 31), //
+                clamp_top(bg.b + (c.b >> 2), 31), //
+                c.k                               //
+            );
+        default:
+            return PSXColor{};
         }
     }
 };
 
-constexpr uint32_t to15bit(uint8_t r, uint8_t g, uint8_t b) {
+constexpr uint32_t to15bit(uint8_t r, uint8_t g, uint8_t b)
+{
     uint32_t newColor = 0;
     newColor |= (r & 0xf8) >> 3;
     newColor |= (g & 0xf8) << 2;
@@ -127,7 +137,8 @@ constexpr uint32_t to15bit(uint8_t r, uint8_t g, uint8_t b) {
     return newColor;
 }
 
-inline uint32_t to15bit(uint32_t color) {
+inline uint32_t to15bit(uint32_t color)
+{
     RGB rgb = {};
     rgb.raw = color;
 
@@ -139,7 +150,8 @@ inline uint32_t to15bit(uint32_t color) {
     return c.raw;
 }
 
-constexpr uint32_t to24bit(uint16_t color) {
+constexpr uint32_t to24bit(uint16_t color)
+{
     uint32_t newColor = 0;
     newColor |= (color & 0x7c00) << 1;
     newColor |= (color & 0x3e0) >> 2;

@@ -2,10 +2,11 @@
 
 #include <glad/glad.h>
 
-class Framebuffer {
+class Framebuffer
+{
     GLuint id;
 
-   public:
+public:
     static GLuint currentId;
 
     Framebuffer(GLuint colorTexture);

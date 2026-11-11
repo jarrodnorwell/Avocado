@@ -17,61 +17,72 @@
 #include <array>
 
 #ifdef USE_OPENGLES
-const char* Shader::header = R"EOF(#version 300 es
+const char *Shader::header = R"EOF(#version 300 es
 #ifdef GL_ES
 precision mediump float;
 #endif
 
 )EOF";
 #else
-const char* Shader::header = R"EOF(#version 140
+const char *Shader::header = R"EOF(#version 140
 
 )EOF";
 #endif
 
-const char* vertexCommon = R"EOF(
+const char *vertexCommon = R"EOF(
 #define VERTEX_SHADER
 #define SHARED out
 )EOF";
 
-const char* fragmentCommon = R"EOF(
+const char *fragmentCommon = R"EOF(
 #define FRAGMENT_SHADER
 #define SHARED in
 
 out vec4 outColor;
 )EOF";
 
-Shader::Shader(std::string name, ShaderType shaderType) {
+Shader::Shader(std::string name, ShaderType shaderType)
+{
     this->name = name;
     this->type = shaderType;
 }
 
 Shader::~Shader() { destroy(); }
 
-void Shader::destroy() {
-    if (compiled && shaderId != 0) glDeleteShader(shaderId);
+void Shader::destroy()
+{
+    if (compiled && shaderId != 0)
+        glDeleteShader(shaderId);
 }
 
-bool Shader::reload() {
+bool Shader::reload()
+{
     destroy();
     return compile();
 }
 
-bool Shader::compile() {
+bool Shader::compile()
+{
     error = name + ": ";
     auto data = getFileContentsAsString(name);
 
-    std::array<const char*, 3> lines = {{header, (type == ShaderType::Vertex) ? vertexCommon : fragmentCommon, data.c_str()}};
+    std::array<const char *, 3> lines = {{header, (type == ShaderType::Vertex) ? vertexCommon : fragmentCommon, data.c_str()}};
 
-    if (type == ShaderType::Vertex) {
+    if (type == ShaderType::Vertex)
+    {
         shaderId = glCreateShader(GL_VERTEX_SHADER);
-    } else if (type == ShaderType::Fragment) {
+    }
+    else if (type == ShaderType::Fragment)
+    {
         shaderId = glCreateShader(GL_FRAGMENT_SHADER);
-    } else {
+    }
+    else
+    {
         error = std::string("Wrong shader type");
         return false;
     }
-    if (shaderId == 0) {
+    if (shaderId == 0)
+    {
         error = std::string("Cannot create shader");
         return false;
     }
@@ -81,7 +92,8 @@ bool Shader::compile() {
 
     GLint status;
     glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);
-    if (!status) {
+    if (!status)
+    {
         std::string buffer;
         buffer.resize(1024);
         glGetShaderInfoLog(shaderId, 1024, nullptr, &buffer[0]);

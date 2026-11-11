@@ -4,26 +4,47 @@
 
 #include <SDL.h>
 
-struct Key {
-    enum class Type { None, Keyboard, MouseMove, MouseButton, ControllerMove, ControllerButton };
-    enum class Axis { Invalid = 0, Up = 1, Right, Left, Down };
+struct Key
+{
+    enum class Type
+    {
+        None,
+        Keyboard,
+        MouseMove,
+        MouseButton,
+        ControllerMove,
+        ControllerButton
+    };
+    enum class Axis
+    {
+        Invalid = 0,
+        Up = 1,
+        Right,
+        Left,
+        Down
+    };
 
     Type type;
-    union {
+    union
+    {
         SDL_Keycode key;
 
-        struct {
-            struct {
+        struct
+        {
+            struct
+            {
                 Axis axis;
                 uint8_t value;
             };
             uint8_t button;
         } mouse;
 
-        struct {
+        struct
+        {
             int id;
-            struct {
-                bool dir;  // 1 - positive, 0 - negative
+            struct
+            {
+                bool dir; // 1 - positive, 0 - negative
                 SDL_GameControllerAxis axis;
                 int16_t value;
             };
@@ -32,7 +53,7 @@ struct Key {
     };
 
     Key();
-    Key(std::string& s);
+    Key(std::string &s);
     std::string to_string() const;
     std::string getButton();
     std::string getDevice();
@@ -42,9 +63,9 @@ struct Key {
     static Key controllerMove(SDL_ControllerAxisEvent axis);
     static Key controllerButton(SDL_ControllerButtonEvent button);
 
-    bool operator==(const Key& rhs) const;
+    bool operator==(const Key &rhs) const;
 
-   private:
+private:
     static std::string mapAxis(Axis axis);
     static std::string mapMouseButton(uint8_t button);
     static Axis stringToMouseAxis(std::string axis);

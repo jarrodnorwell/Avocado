@@ -12,11 +12,13 @@
 
 #endif // TARGET_OS_IPHONE
 
-namespace peripherals {
-None::None(int port) : AbstractDevice(Type::None, port) {}
+namespace peripherals
+{
+    None::None(int port) : AbstractDevice(Type::None, port) {}
 
-uint8_t None::handle(uint8_t byte) {
-    (void)byte;
-    return 0xff;
-}
-};  // namespace peripherals
+    uint8_t None::handle(uint8_t byte)
+    {
+        (void)byte;
+        return 0xff;
+    }
+}; // namespace peripherals

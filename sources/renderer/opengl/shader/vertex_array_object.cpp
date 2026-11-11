@@ -18,8 +18,10 @@ VertexArrayObject::VertexArrayObject() { glGenVertexArrays(1, &id); }
 
 VertexArrayObject::~VertexArrayObject() { glDeleteVertexArrays(1, &id); }
 
-void VertexArrayObject::bind() {
-    if (currentId != id) {
+void VertexArrayObject::bind()
+{
+    if (currentId != id)
+    {
         currentId = id;
         glBindVertexArray(id);
     }

@@ -13,7 +13,8 @@
 #endif // TARGET_OS_IPHONE
 
 Texture::Texture(int width, int height, GLint internalFormat, GLint dataFormat, GLenum type, bool filter)
-    : width(width), height(height), dataFormat(dataFormat), type(type), success(false) {
+    : width(width), height(height), dataFormat(dataFormat), type(type), success(false)
+{
     GLint lastTexture;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &lastTexture);
 
@@ -21,7 +22,8 @@ Texture::Texture(int width, int height, GLint internalFormat, GLint dataFormat, 
     glBindTexture(GL_TEXTURE_2D, id);
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, type, nullptr);
 
-    if (glGetError() != GL_NO_ERROR) {
+    if (glGetError() != GL_NO_ERROR)
+    {
         return;
     }
 
@@ -37,12 +39,14 @@ Texture::Texture(int width, int height, GLint internalFormat, GLint dataFormat, 
 
 Texture::~Texture() { glDeleteTextures(1, &id); }
 
-void Texture::update(const void* data) {
+void Texture::update(const void *data)
+{
     glBindTexture(GL_TEXTURE_2D, id);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, dataFormat, type, data);
 }
 
-void Texture::bind(int sampler) {
+void Texture::bind(int sampler)
+{
     glActiveTexture(GL_TEXTURE0 + sampler);
     glBindTexture(GL_TEXTURE_2D, id);
 }

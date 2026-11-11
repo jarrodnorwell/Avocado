@@ -21,40 +21,45 @@
 #include <string>
 #include <unordered_map>
 
-namespace avocado {
-extern std::string PATH_DATA;  // Read-only directory, distributed with emulator
-extern std::string PATH_USER;  // Writable directory for storing saves, config, etc
+namespace avocado
+{
+    extern std::string PATH_DATA; // Read-only directory, distributed with emulator
+    extern std::string PATH_USER; // Writable directory for storing saves, config, etc
 
-inline std::string assetsPath(const char* file = "") { return PATH_DATA + "assets/" + file; }
-inline std::string shaderPath(const char* file = "") { return PATH_DATA + "shader/" + file; }
-inline std::string biosPath() { return PATH_USER + "bios/"; }
-inline std::string statePath(const char* file = "") { return PATH_USER + "state/" + file; }
-inline std::string memoryPath(const char* file = "") { return PATH_USER + "memory/" + file; }
-inline std::string isoPath(const char* file = "") { return PATH_USER + "iso/" + file; }
-};  // namespace avocado
+    inline std::string assetsPath(const char *file = "") { return PATH_DATA + "assets/" + file; }
+    inline std::string shaderPath(const char *file = "") { return PATH_DATA + "shader/" + file; }
+    inline std::string biosPath() { return PATH_USER + "bios/"; }
+    inline std::string statePath(const char *file = "") { return PATH_USER + "state/" + file; }
+    inline std::string memoryPath(const char *file = "") { return PATH_USER + "memory/" + file; }
+    inline std::string isoPath(const char *file = "") { return PATH_USER + "iso/" + file; }
+}; // namespace avocado
 
 using KeyBindings = std::unordered_map<std::string, std::string>;
 
-namespace DefaultKeyBindings {
-KeyBindings none();
-KeyBindings keyboard_wadx();
-KeyBindings keyboard_numpad();
-KeyBindings mouse();
-KeyBindings controller(int n);
-}  // namespace DefaultKeyBindings
+namespace DefaultKeyBindings
+{
+    KeyBindings none();
+    KeyBindings keyboard_wadx();
+    KeyBindings keyboard_numpad();
+    KeyBindings mouse();
+    KeyBindings controller(int n);
+} // namespace DefaultKeyBindings
 
-namespace DefaultHotkeys {
-KeyBindings keyboard();
-}  // namespace DefaultHotkeys
+namespace DefaultHotkeys
+{
+    KeyBindings keyboard();
+} // namespace DefaultHotkeys
 
-struct avocado_config_t {
+struct avocado_config_t
+{
     std::string bios = "";
     std::string extension = "";
     std::string iso = "";
 
     KeyBindings hotkeys = DefaultHotkeys::keyboard();
 
-    struct {
+    struct
+    {
         ControllerType type;
         KeyBindings keys;
     } controller[2]{
@@ -68,12 +73,15 @@ struct avocado_config_t {
         },
     };
 
-    struct {
-        struct {
+    struct
+    {
+        struct
+        {
             RenderingMode renderingMode = RenderingMode::software;
             bool widescreen = false;
             bool forceWidescreen = false;
-            struct {
+            struct
+            {
                 unsigned int width = 640;
                 unsigned int height = 480;
             } resolution;
@@ -82,23 +90,28 @@ struct avocado_config_t {
             bool nativeTextureFormat = true;
         } graphics;
 
-        struct {
+        struct
+        {
             bool enabled = true;
         } sound;
 
-        struct {
+        struct
+        {
             bool preserveState = true;
             bool timeTravel = false;
         } emulator;
 
-        struct {
+        struct
+        {
             bool ram8mb = false;
         } system;
 
     } options;
 
-    struct {
-        struct {
+    struct
+    {
+        struct
+        {
             int bios = 0;
             int cdrom = 0;
             int controller = 0;
@@ -113,14 +126,16 @@ struct avocado_config_t {
         } log;
     } debug;
 
-    struct {
+    struct
+    {
         std::string path;
     } memoryCard[2]{
-        {avocado::memoryPath("card1.mcr")},  //
-        {""},                                //
+        {avocado::memoryPath("card1.mcr")}, //
+        {""},                               //
     };
 
-    struct {
+    struct
+    {
         std::string lastPath = "";
     } gui;
 

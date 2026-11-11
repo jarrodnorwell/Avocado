@@ -6,4 +6,4 @@
 bool hasExternalStoragePermission();
 #endif
 
-void openFileBrowser(const std::string& path);
+void openFileBrowser(const std::string &path);

@@ -12,13 +12,14 @@
 
 #endif // TARGET_OS_IPHONE
 
-namespace peripherals {
-AbstractDevice::AbstractDevice(Type type, int port) : type(type), port(port) {}
+namespace peripherals
+{
+    AbstractDevice::AbstractDevice(Type type, int port) : type(type), port(port) {}
 
-AbstractDevice::~AbstractDevice() {}
+    AbstractDevice::~AbstractDevice() {}
 
-bool AbstractDevice::getAck() { return state != 0; }
+    bool AbstractDevice::getAck() { return state != 0; }
 
-void AbstractDevice::resetState() { state = 0; }
-void AbstractDevice::update() {}
-};  // namespace peripherals
+    void AbstractDevice::resetState() { state = 0; }
+    void AbstractDevice::update() {}
+}; // namespace peripherals

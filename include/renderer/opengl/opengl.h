@@ -28,8 +28,9 @@
 
 #include <glad/glad.h>
 
-class OpenGL {
-   public:
+class OpenGL
+{
+public:
 #ifdef USE_OPENGLES
     const int VERSION_MAJOR = 3;
     const int VERSION_MINOR = 0;
@@ -51,11 +52,12 @@ class OpenGL {
     OpenGL();
     ~OpenGL();
     bool setup();
-    void render(gpu::GPU* gpu);
+    void render(gpu::GPU *gpu);
 
-   private:
+private:
     int busToken = -1;
-    struct BlitStruct {
+    struct BlitStruct
+    {
         float pos[2];
         float tex[2];
     };
@@ -85,16 +87,16 @@ class OpenGL {
     bool loadExtensions();
     bool loadShaders();
     void bindRenderAttributes();
-    void renderVertices(gpu::GPU* gpu);
+    void renderVertices(gpu::GPU *gpu);
 
     std::vector<uint8_t> vram24Unpacked;
     std::vector<uint16_t> vramUnpacked;
-    void update24bitTexture(gpu::GPU* gpu);
-    void updateVramTexture(gpu::GPU* gpu);
+    void update24bitTexture(gpu::GPU *gpu);
+    void updateVramTexture(gpu::GPU *gpu);
 
     void bindBlitAttributes();
     std::vector<BlitStruct> makeBlitBuf(int screenX = 0, int screenY = 0, int screenW = 640, int screenH = 480, bool invert = false);
-    void renderBlit(gpu::GPU* gpu, bool software);
+    void renderBlit(gpu::GPU *gpu, bool software);
 
     void bindCopyAttributes();
 };

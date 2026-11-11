@@ -3,12 +3,15 @@
 
 #include <imgui.h>
 
-namespace avocado {
+namespace avocado
+{
 
-    namespace gui {
+    namespace gui
+    {
 
-        void About::design() {
-            const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        void About::design()
+        {
+            const ImGuiViewport *viewport = ImGui::GetMainViewport();
 
             ImGui::SetNextWindowPos(
                 viewport->GetCenter(),
@@ -19,21 +22,22 @@ namespace avocado {
                 ImVec2(640.f, -1.f),
                 ImVec2(FLT_MAX, FLT_MAX));
 
-            if (!ImGui::Begin("About", &open, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove)) {
+            if (!ImGui::Begin("About", &open, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove))
+            {
                 ImGui::End();
                 return;
             }
 
-            Header("Avocado", "Build information", "A", { 48.0f, 48.0f });
+            Header("Avocado", "Build information", "A", {48.0f, 48.0f});
 
             ImGui::Spacing();
             SectionHeader("BUILD");
 
             if (ImGui::BeginTable(
-                "##build",
-                2,
-                ImGuiTableFlags_SizingStretchProp |
-                ImGuiTableFlags_NoBordersInBody))
+                    "##build",
+                    2,
+                    ImGuiTableFlags_SizingStretchProp |
+                        ImGuiTableFlags_NoBordersInBody))
             {
                 ImGui::TableSetupColumn(
                     "Property",
@@ -53,15 +57,15 @@ namespace avocado {
 
                 ImGui::EndTable();
             }
-            
+
             ImGui::Spacing();
             SectionHeader("COMMIT");
 
             if (ImGui::BeginTable(
-                "##commit",
-                2,
-                ImGuiTableFlags_SizingStretchProp |
-                ImGuiTableFlags_NoBordersInBody))
+                    "##commit",
+                    2,
+                    ImGuiTableFlags_SizingStretchProp |
+                        ImGuiTableFlags_NoBordersInBody))
             {
                 ImGui::TableSetupColumn(
                     "Property",
@@ -83,10 +87,10 @@ namespace avocado {
             SectionHeader("REPOSITORY");
 
             if (ImGui::BeginTable(
-                "##repository",
-                2,
-                ImGuiTableFlags_SizingStretchProp |
-                ImGuiTableFlags_NoBordersInBody))
+                    "##repository",
+                    2,
+                    ImGuiTableFlags_SizingStretchProp |
+                        ImGuiTableFlags_NoBordersInBody))
             {
                 ImGui::TableSetupColumn(
                     "Property",
@@ -134,13 +138,14 @@ namespace avocado {
             ImGui::End();
         };
 
-        void About::display() {
+        void About::display()
+        {
             if (open)
                 design();
         };
 
         void About::PropertyRow(
-            const char* label,
+            const char *label,
             std::string_view value,
             bool copyable)
         {
@@ -154,8 +159,8 @@ namespace avocado {
             ImGui::PushID(label);
 
             ImGui::TextWrapped("%.*s",
-                static_cast<int>(value.size()),
-                value.data());
+                               static_cast<int>(value.size()),
+                               value.data());
 
             if (copyable && ImGui::IsItemHovered())
             {
@@ -171,7 +176,7 @@ namespace avocado {
             ImGui::PopID();
         }
 
-        void About::SectionHeader(const char* label)
+        void About::SectionHeader(const char *label)
         {
             ImGui::Spacing();
             ImGui::TextDisabled("%s", label);

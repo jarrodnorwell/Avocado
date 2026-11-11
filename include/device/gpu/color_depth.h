@@ -1,11 +1,18 @@
 #pragma once
 
-enum class ColorDepth { NONE, BIT_4, BIT_8, BIT_16 };
+enum class ColorDepth
+{
+    NONE,
+    BIT_4,
+    BIT_8,
+    BIT_16
+};
 
 ColorDepth bitsToDepth(int bits);
 
 template <int bits>
-constexpr ColorDepth bitsToDepth() {
+constexpr ColorDepth bitsToDepth()
+{
     if constexpr (bits == 4)
         return ColorDepth::BIT_4;
     else if constexpr (bits == 8)

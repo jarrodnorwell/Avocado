@@ -20,7 +20,8 @@
 #include <imgui.h>
 #include <SDL.h>
 
-OpenGL::OpenGL() {
+OpenGL::OpenGL()
+{
 #ifdef USE_OPENGLES
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 #else
@@ -32,12 +33,14 @@ OpenGL::OpenGL() {
     // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
 
-    busToken = bus.listen<Event::Config::Graphics>([&](auto) { setup(); });
+    busToken = bus.listen<Event::Config::Graphics>([&](auto)
+                                                   { setup(); });
 }
 
 OpenGL::~OpenGL() { bus.unlistenAll(busToken); }
 
-bool OpenGL::loadExtensions() {
+bool OpenGL::loadExtensions()
+{
 #ifdef __glad_h_
     return gladLoadGLLoader(SDL_GL_GetProcAddress) != 0;
 #else
@@ -45,54 +48,66 @@ bool OpenGL::loadExtensions() {
 #endif
 }
 
-bool OpenGL::loadShaders() {
+bool OpenGL::loadShaders()
+{
     // PS1 GPU in Shader simulation
     renderShader = std::make_unique<Program>(avocado::shaderPath("render.shader"));
-    if (!renderShader->load()) {
+    if (!renderShader->load())
+    {
         fmt::print("[GL] Cannot load render shader: {}\n", renderShader->getError());
         return false;
     }
 
     // Draw/Blit texture to framebuffer (with PS1 clipping and other modifiers)
     blitShader = std::make_unique<Program>(avocado::shaderPath("blit.shader"));
-    if (!blitShader->load()) {
+    if (!blitShader->load())
+    {
         fmt::print("[GL] Cannot load blit shader: {}\n", blitShader->getError());
         return false;
     }
 
     // Copy texture to texture
     copyShader = std::make_unique<Program>(avocado::shaderPath("copy.shader"));
-    if (!copyShader->load()) {
+    if (!copyShader->load())
+    {
         fmt::print("[GL] Cannot load copy shader: {}\n", copyShader->getError());
         return false;
     }
     return true;
 }
 
-bool OpenGL::setup() {
-    if (!loadExtensions()) {
+bool OpenGL::setup()
+{
+    if (!loadExtensions())
+    {
         fmt::print("[GL] Cannot initialize glad\n");
         return false;
     }
 
 #ifdef __glad_h_
     // Check actual version of OpenGL context
-    if (GLVersion.major * 10 + GLVersion.minor < VERSION_MAJOR * 10 + VERSION_MINOR) {
+    if (GLVersion.major * 10 + GLVersion.minor < VERSION_MAJOR * 10 + VERSION_MINOR)
+    {
         fmt::print("Unable to initialize OpenGL context for version {}.{} (got {}.{})\n", VERSION_MAJOR, VERSION_MINOR, GLVersion.major,
                    GLVersion.minor);
         return false;
     }
 #endif
 
-    if (!loadShaders()) return false;
+    if (!loadShaders())
+        return false;
 
     bool vsync = config.options.graphics.vsync;
-    if (vsync) {
-        if (SDL_GL_SetSwapInterval(-1) != 0) {  // Try adaptive VSync
-            SDL_GL_SetSwapInterval(1);          // Normal VSync
+    if (vsync)
+    {
+        if (SDL_GL_SetSwapInterval(-1) != 0)
+        {                              // Try adaptive VSync
+            SDL_GL_SetSwapInterval(1); // Normal VSync
         }
-    } else {
-        SDL_GL_SetSwapInterval(0);  // No VSync
+    }
+    else
+    {
+        SDL_GL_SetSwapInterval(0); // No VSync
     }
 
     // OpenGL 3.2 requires VAO to be used
@@ -118,17 +133,22 @@ bool OpenGL::setup() {
 
     // Try native texture
 #ifdef GL_UNSIGNED_SHORT_1_5_5_5_REV
-    if (config.options.graphics.nativeTextureFormat) {
+    if (config.options.graphics.nativeTextureFormat)
+    {
         vramTex = std::make_unique<Texture>(gpu::VRAM_WIDTH, gpu::VRAM_HEIGHT, GL_RGBA, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, false);
     }
 #endif
 
-    if (vramTex && vramTex->isCreated()) {
+    if (vramTex && vramTex->isCreated())
+    {
         supportNativeTexture = true;
-    } else {
+    }
+    else
+    {
         // Use compatibility mode
         vramTex = std::make_unique<Texture>(gpu::VRAM_WIDTH, gpu::VRAM_HEIGHT, GL_RGBA, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, false);
-        if (!vramTex || !vramTex->isCreated()) {
+        if (!vramTex || !vramTex->isCreated())
+        {
             fmt::print("[GL] Unable to create VRAM texture\n");
             return false;
         }
@@ -145,7 +165,8 @@ bool OpenGL::setup() {
     return true;
 }
 
-std::vector<OpenGL::BlitStruct> OpenGL::makeBlitBuf(int screenX, int screenY, int screenW, int screenH, bool invert) {
+std::vector<OpenGL::BlitStruct> OpenGL::makeBlitBuf(int screenX, int screenY, int screenW, int screenH, bool invert)
+{
     /* X,Y
 
        0,0      1,0
@@ -160,22 +181,29 @@ std::vector<OpenGL::BlitStruct> OpenGL::makeBlitBuf(int screenX, int screenY, in
     float sw = sx + (float)screenW / 1024.f;
     float sh = sy + (float)screenH / 512.f;
 
-    if (invert) {
+    if (invert)
+    {
         float tmp = sy;
         sy = sh;
         sh = tmp;
     }
 
     return {
-        {{0.f, 0.f}, {sx, sy}}, {{1.f, 0.f}, {sw, sy}}, {{1.f, 1.f}, {sw, sh}},
-        {{0.f, 0.f}, {sx, sy}}, {{1.f, 1.f}, {sw, sh}}, {{0.f, 1.f}, {sx, sh}},
+        {{0.f, 0.f}, {sx, sy}},
+        {{1.f, 0.f}, {sw, sy}},
+        {{1.f, 1.f}, {sw, sh}},
+        {{0.f, 0.f}, {sx, sy}},
+        {{1.f, 1.f}, {sw, sh}},
+        {{0.f, 1.f}, {sx, sh}},
     };
 }
 
-void OpenGL::bindRenderAttributes() {
+void OpenGL::bindRenderAttributes()
+{
     const size_t stride = sizeof(gpu::Vertex);
     size_t offset = 0;
-    auto attrib = [&](const char* name, GLint size, GLenum type) {
+    auto attrib = [&](const char *name, GLint size, GLenum type)
+    {
         renderShader->getAttrib(name).pointer(size, type, stride, offset);
         offset += size * Attribute::getSize(type);
     };
@@ -189,27 +217,33 @@ void OpenGL::bindRenderAttributes() {
     attrib("textureWindow", 1, GL_UNSIGNED_INT);
 }
 
-void OpenGL::bindBlitAttributes() {
+void OpenGL::bindBlitAttributes()
+{
     blitShader->getAttrib("position").pointer(2, GL_FLOAT, sizeof(BlitStruct), 0);
     blitShader->getAttrib("texcoord").pointer(2, GL_FLOAT, sizeof(BlitStruct), 2 * sizeof(float));
 }
 
-void OpenGL::bindCopyAttributes() {
+void OpenGL::bindCopyAttributes()
+{
     copyShader->getAttrib("position").pointer(2, GL_FLOAT, sizeof(BlitStruct), 0);
     copyShader->getAttrib("texcoord").pointer(2, GL_FLOAT, sizeof(BlitStruct), 2 * sizeof(float));
 }
 
-void OpenGL::update24bitTexture(gpu::GPU* gpu) {
+void OpenGL::update24bitTexture(gpu::GPU *gpu)
+{
     size_t dataSize = gpu::VRAM_HEIGHT * gpu::VRAM_WIDTH * 3;
-    if (vram24Unpacked.size() != dataSize) {
+    if (vram24Unpacked.size() != dataSize)
+    {
         vram24Unpacked.resize(dataSize);
     }
 
     // Unpack VRAM to 8 bit RGB values (two pixels at the time)
-    for (int y = 0; y < gpu::VRAM_HEIGHT; y++) {
+    for (int y = 0; y < gpu::VRAM_HEIGHT; y++)
+    {
         unsigned int gpuOffset = y * gpu::VRAM_WIDTH;
         unsigned int texOffset = y * gpu::VRAM_WIDTH * 3;
-        for (int x = 0; x < gpu::VRAM_WIDTH; x += 3) {
+        for (int x = 0; x < gpu::VRAM_WIDTH; x += 3)
+        {
             uint16_t c1 = gpu->vram[gpuOffset + 0];
             uint16_t c2 = gpu->vram[gpuOffset + 1];
             uint16_t c3 = gpu->vram[gpuOffset + 2];
@@ -235,20 +269,25 @@ void OpenGL::update24bitTexture(gpu::GPU* gpu) {
     vram24Tex->update(vram24Unpacked.data());
 }
 
-void OpenGL::updateVramTexture(gpu::GPU* gpu) {
-    if (supportNativeTexture) {
+void OpenGL::updateVramTexture(gpu::GPU *gpu)
+{
+    if (supportNativeTexture)
+    {
         vramTex->update(gpu->vram.data());
         return;
     }
 
     size_t dataSize = gpu::VRAM_HEIGHT * gpu::VRAM_WIDTH;
-    if (vramUnpacked.size() != dataSize) {
+    if (vramUnpacked.size() != dataSize)
+    {
         vramUnpacked.resize(dataSize);
     }
 
     // Unpack VRAM to native GPU format
-    for (int y = 0; y < gpu::VRAM_HEIGHT; y++) {
-        for (int x = 0; x < gpu::VRAM_WIDTH; x++) {
+    for (int y = 0; y < gpu::VRAM_HEIGHT; y++)
+    {
+        for (int x = 0; x < gpu::VRAM_WIDTH; x++)
+        {
             unsigned int pos = y * gpu::VRAM_WIDTH + x;
 
             vramUnpacked[pos] = PSXColor(gpu->vram[pos]).rev();
@@ -257,10 +296,12 @@ void OpenGL::updateVramTexture(gpu::GPU* gpu) {
     vramTex->update(vramUnpacked.data());
 }
 
-void OpenGL::renderVertices(gpu::GPU* gpu) {
+void OpenGL::renderVertices(gpu::GPU *gpu)
+{
     static vec2 lastPos;
-    auto& buffer = gpu->vertices;
-    if (buffer.empty()) {
+    auto &buffer = gpu->vertices;
+    if (buffer.empty())
+    {
         return;
     }
 
@@ -290,41 +331,52 @@ void OpenGL::renderVertices(gpu::GPU* gpu) {
     using Transparency = gpu::SemiTransparency;
 
     const int count = 3;
-    for (size_t i = 0; i < buffer.size(); i += count) {
+    for (size_t i = 0; i < buffer.size(); i += count)
+    {
         // Skip rendering when distance between vertices is bigger than 1023x511
         bool skipRender = false;
-        for (int j = 0; j < count; j++) {
-            auto& v0 = buffer[i + j];
-            auto& v1 = buffer[i + ((j + 1) % count)];
+        for (int j = 0; j < count; j++)
+        {
+            auto &v0 = buffer[i + j];
+            auto &v1 = buffer[i + ((j + 1) % count)];
             int x = abs(v0.position[0] - v1.position[0]);
             int y = abs(v0.position[1] - v1.position[1]);
-            if (x >= 1024 || y >= 512) {
+            if (x >= 1024 || y >= 512)
+            {
                 skipRender = true;
                 break;
             }
         }
 
-        if (skipRender) {
+        if (skipRender)
+        {
             continue;
         }
 
         bool isTextured = bitsToDepth(buffer[i].bitcount) != ColorDepth::NONE;
-        if (buffer[i].flags & gpu::Vertex::SemiTransparency) {
+        if (buffer[i].flags & gpu::Vertex::SemiTransparency)
+        {
             auto semi = static_cast<Transparency>((buffer[i].flags >> 5) & 3);
 
             glBlendEquationSeparate(semi == Transparency::BminusF ? GL_FUNC_REVERSE_SUBTRACT : GL_FUNC_ADD, GL_FUNC_ADD);
-            switch (semi) {
-                case Transparency::Bby2plusFby2:
-                    isTextured ? glBlendFunc(GL_ONE, GL_SRC_ALPHA) : glBlendFunc(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA); break;
-                case Transparency::BplusF:
-                case Transparency::BminusF:
-                    isTextured ? glBlendFunc(GL_ONE, GL_SRC_ALPHA) : glBlendFunc(GL_ONE, GL_ONE); break;
-                case Transparency::BplusFby4:
-                    isTextured ? glBlendFunc(GL_CONSTANT_COLOR, GL_SRC_ALPHA) : glBlendFunc(GL_CONSTANT_COLOR, GL_ONE); break;
+            switch (semi)
+            {
+            case Transparency::Bby2plusFby2:
+                isTextured ? glBlendFunc(GL_ONE, GL_SRC_ALPHA) : glBlendFunc(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
+                break;
+            case Transparency::BplusF:
+            case Transparency::BminusF:
+                isTextured ? glBlendFunc(GL_ONE, GL_SRC_ALPHA) : glBlendFunc(GL_ONE, GL_ONE);
+                break;
+            case Transparency::BplusFby4:
+                isTextured ? glBlendFunc(GL_CONSTANT_COLOR, GL_SRC_ALPHA) : glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
+                break;
             }
 
             glEnable(GL_BLEND);
-        } else {
+        }
+        else
+        {
             glDisable(GL_BLEND);
         }
 
@@ -337,7 +389,8 @@ void OpenGL::renderVertices(gpu::GPU* gpu) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGL::renderBlit(gpu::GPU* gpu, bool software) {
+void OpenGL::renderBlit(gpu::GPU *gpu, bool software)
+{
     blitShader->use();
 
     // Viewport settings
@@ -349,24 +402,28 @@ void OpenGL::renderBlit(gpu::GPU* gpu, bool software) {
     int h = height;
 
     std::vector<BlitStruct> bb = makeBlitBuf(0, 0, 1024, 512);
-    if (software) {
+    if (software)
+    {
         bb = makeBlitBuf(gpu->displayAreaStartX, gpu->displayAreaStartY, gpu->gp1_08.getHorizontalResoulution(),
                          gpu->gp1_08.getVerticalResoulution(), true);
     }
 
-    if (width > height * aspect) {
+    if (width > height * aspect)
+    {
         // Fit vertical
         w = static_cast<int>(height * aspect);
         x = static_cast<int>((width - w) / 2.f);
-    } else {
+    }
+    else
+    {
         // Fit horizontal
         h = static_cast<int>(width * (1.0f / aspect));
         y = static_cast<int>((height - h) / 2.f);
     }
 
     {
-        float yOffset = y / static_cast<float>(h);  // Compensate for aspect ratio
-        float xOffset = x / static_cast<float>(w);  // TODO: Handle 24bit mode!
+        float yOffset = y / static_cast<float>(h); // Compensate for aspect ratio
+        float xOffset = x / static_cast<float>(w); // TODO: Handle 24bit mode!
 
         float vResolution = gpu->isNtsc() ? 240 : 256;
 
@@ -402,11 +459,16 @@ void OpenGL::renderBlit(gpu::GPU* gpu, bool software) {
     bindBlitAttributes();
 
     // Hack
-    if (gpu->gp1_08.colorDepth == gpu::GP1_08::ColorDepth::bit24) {
+    if (gpu->gp1_08.colorDepth == gpu::GP1_08::ColorDepth::bit24)
+    {
         vram24Tex->bind(0);
-    } else if (software) {
+    }
+    else if (software)
+    {
         vramTex->bind(0);
-    } else {
+    }
+    else
+    {
         renderTex->bind(0);
     }
     blitShader->getUniform("renderBuffer").i(0);
@@ -415,20 +477,25 @@ void OpenGL::renderBlit(gpu::GPU* gpu, bool software) {
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void OpenGL::render(gpu::GPU* gpu) {
+void OpenGL::render(gpu::GPU *gpu)
+{
     vao->bind();
     // Clear framebuffer
     glClearColor(0.f, 0.f, 0.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (gpu->gp1_08.colorDepth == gpu::GP1_08::ColorDepth::bit24) {
+    if (gpu->gp1_08.colorDepth == gpu::GP1_08::ColorDepth::bit24)
+    {
         // HACK: Force software rendering for movies (24bit mode)
         update24bitTexture(gpu);
         renderBlit(gpu, true);
-    } else {
+    }
+    else
+    {
         updateVramTexture(gpu);
 
-        if (hardwareRendering) {
+        if (hardwareRendering)
+        {
             // Render all GPU commands
             renderVertices(gpu);
         }

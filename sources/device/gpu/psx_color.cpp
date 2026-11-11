@@ -12,7 +12,8 @@
 
 #endif // TARGET_OS_IPHONE
 
-RGB operator*(const RGB& lhs, const float rhs) {
+RGB operator*(const RGB &lhs, const float rhs)
+{
     RGB c;
     c.r = (uint8_t)(lhs.r * rhs);
     c.g = (uint8_t)(lhs.g * rhs);
@@ -20,7 +21,8 @@ RGB operator*(const RGB& lhs, const float rhs) {
     return c;
 }
 
-RGB operator+(const RGB& lhs, const RGB& rhs) {
+RGB operator+(const RGB &lhs, const RGB &rhs)
+{
     RGB c;
     c.r = lhs.r + rhs.r;
     c.g = lhs.g + rhs.g;

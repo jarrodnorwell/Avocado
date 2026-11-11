@@ -2,10 +2,11 @@
 
 #include <glad/glad.h>
 
-class VertexArrayObject {
+class VertexArrayObject
+{
     GLuint id;
 
-   public:
+public:
     static GLuint currentId;
 
     VertexArrayObject();

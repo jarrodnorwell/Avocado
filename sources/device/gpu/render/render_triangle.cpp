@@ -23,15 +23,17 @@
 #include <algorithm>
 
 #undef VRAM
-#define VRAM ((uint16_t(*)[gpu::VRAM_WIDTH])gpu->vram.data())
+#define VRAM ((uint16_t (*)[gpu::VRAM_WIDTH])gpu->vram.data())
 
-int orient2d(const ivec2& a, const ivec2& b, const ivec2& c) {  //
+int orient2d(const ivec2 &a, const ivec2 &b, const ivec2 &c)
+{ //
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
 static bool isTopLeft(const ivec2 e) { return e.y < 0 || (e.y == 0 && e.x < 0); }
 
-void calculateFillRuleBias(int bias[3], const ivec2 pos[3]) {
+void calculateFillRuleBias(int bias[3], const ivec2 pos[3])
+{
     // Delta constants
     const ivec2 D01(pos[1].x - pos[0].x, pos[0].y - pos[1].y);
     const ivec2 D12(pos[2].x - pos[1].x, pos[1].y - pos[2].y);
@@ -62,13 +64,16 @@ using delta_t = float;
 #define ADD_PADDING(x) (x)
 #endif
 
-struct Attributes {
+struct Attributes
+{
     delta_t r, g, b;
     delta_t u, v;
 };
 
-struct AttributeDeltas {
-    struct Delta {
+struct AttributeDeltas
+{
+    struct Delta
+    {
         delta_t x, y;
     };
 
@@ -80,22 +85,26 @@ struct AttributeDeltas {
  * p - vertex position
  * a - attribute values per vertex
  */
-delta_t calculateXDelta(const ivec2 p[3], const int a[3]) {
+delta_t calculateXDelta(const ivec2 p[3], const int a[3])
+{
     return (p[1].y - p[2].y) * a[0] + (p[2].y - p[0].y) * a[1] + (p[0].y - p[1].y) * a[2];
 }
 
-delta_t calculateYDelta(const ivec2 p[3], const int a[3]) {
+delta_t calculateYDelta(const ivec2 p[3], const int a[3])
+{
     return (p[2].x - p[1].x) * a[0] + (p[0].x - p[2].x) * a[1] + (p[1].x - p[0].x) * a[2];
 }
 
-AttributeDeltas::Delta calculateDelta(const int area, const ivec2 p[3], const int a[3]) {
+AttributeDeltas::Delta calculateDelta(const int area, const ivec2 p[3], const int a[3])
+{
     delta_t x = ADD_PADDING(TO_FP(calculateXDelta(p, a)) / area);
     delta_t y = ADD_PADDING(TO_FP(calculateYDelta(p, a)) / area);
 
     return {x, y};
 }
 
-delta_t calculateStartAttribute(const int area, const ivec2 p[3], const int bias[3], const int a[3]) {
+delta_t calculateStartAttribute(const int area, const ivec2 p[3], const int bias[3], const int a[3])
+{
     float A = (p[1].x * p[2].y - p[2].x * p[1].y) * a[0] - bias[0];
     float B = (p[2].x * p[0].y - p[0].x * p[2].y) * a[1] - bias[1];
     float C = (p[0].x * p[1].y - p[1].x * p[0].y) * a[2] - bias[2];
@@ -109,17 +118,20 @@ delta_t calculateStartAttribute(const int area, const ivec2 p[3], const int bias
 }
 
 template <bool isGouraudShaded, bool isTextured>
-Attributes calculateStartAttributes(const primitive::Triangle& triangle) {
+Attributes calculateStartAttributes(const primitive::Triangle &triangle)
+{
     ivec2 p[3] = {triangle.v[0].pos, triangle.v[1].pos, triangle.v[2].pos};
 
     const int area = orient2d(p[0], p[1], p[2]);
-    if (area == 0) return {};
+    if (area == 0)
+        return {};
 
     int bias[3];
     calculateFillRuleBias(bias, p);
 
     Attributes attrs = {};
-    if constexpr (isGouraudShaded) {
+    if constexpr (isGouraudShaded)
+    {
         int r[3] = {triangle.v[0].color.r, triangle.v[1].color.r, triangle.v[2].color.r};
         int g[3] = {triangle.v[0].color.g, triangle.v[1].color.g, triangle.v[2].color.g};
         int b[3] = {triangle.v[0].color.b, triangle.v[1].color.b, triangle.v[2].color.b};
@@ -129,7 +141,8 @@ Attributes calculateStartAttributes(const primitive::Triangle& triangle) {
         attrs.b = calculateStartAttribute(area, p, bias, b);
     }
 
-    if constexpr (isTextured) {
+    if constexpr (isTextured)
+    {
         int u[3] = {triangle.v[0].uv.x, triangle.v[1].uv.x, triangle.v[2].uv.x};
         int v[3] = {triangle.v[0].uv.y, triangle.v[1].uv.y, triangle.v[2].uv.y};
 
@@ -141,14 +154,17 @@ Attributes calculateStartAttributes(const primitive::Triangle& triangle) {
 }
 
 template <bool isGouraudShaded, bool isTextured>
-AttributeDeltas calculateDeltas(const primitive::Triangle& triangle) {
+AttributeDeltas calculateDeltas(const primitive::Triangle &triangle)
+{
     ivec2 p[3] = {triangle.v[0].pos, triangle.v[1].pos, triangle.v[2].pos};
 
     const int area = orient2d(p[0], p[1], p[2]);
-    if (area == 0) return {};
+    if (area == 0)
+        return {};
 
     AttributeDeltas deltas = {};
-    if constexpr (isGouraudShaded) {
+    if constexpr (isGouraudShaded)
+    {
         int r[3] = {triangle.v[0].color.r, triangle.v[1].color.r, triangle.v[2].color.r};
         int g[3] = {triangle.v[0].color.g, triangle.v[1].color.g, triangle.v[2].color.g};
         int b[3] = {triangle.v[0].color.b, triangle.v[1].color.b, triangle.v[2].color.b};
@@ -158,7 +174,8 @@ AttributeDeltas calculateDeltas(const primitive::Triangle& triangle) {
         deltas.b = calculateDelta(area, p, b);
     }
 
-    if constexpr (isTextured) {
+    if constexpr (isTextured)
+    {
         int u[3] = {triangle.v[0].uv.x, triangle.v[1].uv.x, triangle.v[2].uv.x};
         int v[3] = {triangle.v[0].uv.y, triangle.v[1].uv.y, triangle.v[2].uv.y};
 
@@ -170,32 +187,39 @@ AttributeDeltas calculateDeltas(const primitive::Triangle& triangle) {
 }
 
 template <bool isGouraudShaded, bool isTextured>
-void addXDeltas(Attributes& attrib, AttributeDeltas& deltas, int count = 1) {
-    if constexpr (isGouraudShaded) {
+void addXDeltas(Attributes &attrib, AttributeDeltas &deltas, int count = 1)
+{
+    if constexpr (isGouraudShaded)
+    {
         attrib.r += deltas.r.x * count;
         attrib.g += deltas.g.x * count;
         attrib.b += deltas.b.x * count;
     }
-    if constexpr (isTextured) {
+    if constexpr (isTextured)
+    {
         attrib.u += deltas.u.x * count;
         attrib.v += deltas.v.x * count;
     }
 }
 
 template <bool isGouraudShaded, bool isTextured>
-void addYDeltas(Attributes& attrib, AttributeDeltas& deltas, int count = 1) {
-    if constexpr (isGouraudShaded) {
+void addYDeltas(Attributes &attrib, AttributeDeltas &deltas, int count = 1)
+{
+    if constexpr (isGouraudShaded)
+    {
         attrib.r += deltas.r.y * count;
         attrib.g += deltas.g.y * count;
         attrib.b += deltas.b.y * count;
     }
-    if constexpr (isTextured) {
+    if constexpr (isTextured)
+    {
         attrib.u += deltas.u.y * count;
         attrib.v += deltas.v.y * count;
     }
 }
 
-RGB dither(const RGB color, const ivec2 p) {
+RGB dither(const RGB color, const ivec2 p)
+{
     uint8_t r = ditherLUT[p.y & 3u][p.x & 3u][color.r];
     uint8_t g = ditherLUT[p.y & 3u][p.x & 3u][color.g];
     uint8_t b = ditherLUT[p.y & 3u][p.x & 3u][color.b];
@@ -203,7 +227,8 @@ RGB dither(const RGB color, const ivec2 p) {
 }
 
 template <ColorDepth bits, bool isSemiTransparent, bool isGouraudShaded, bool isBlended, bool checkMaskBeforeDraw, bool dithering>
-void rasterizeTriangle(gpu::GPU* gpu, const primitive::Triangle& triangle) {
+void rasterizeTriangle(gpu::GPU *gpu, const primitive::Triangle &triangle)
+{
     // Extract common GPU state
     const auto transparency = triangle.transparency;
     const bool setMaskWhileDrawing = gpu->gp0_e6.setMaskWhileDrawing;
@@ -215,30 +240,32 @@ void rasterizeTriangle(gpu::GPU* gpu, const primitive::Triangle& triangle) {
     const RGB colorFlat = triangle.v[0].color;
 
     const int area = orient2d(pos[0], pos[1], pos[2]);
-    if (area == 0) return;
+    if (area == 0)
+        return;
 
     loadClutCacheIfRequired<bits>(gpu, triangle.clut);
 
-    ivec2 min(                                     //
-        std::min({pos[0].x, pos[1].x, pos[2].x}),  //
-        std::min({pos[0].y, pos[1].y, pos[2].y})   //
+    ivec2 min(                                    //
+        std::min({pos[0].x, pos[1].x, pos[2].x}), //
+        std::min({pos[0].y, pos[1].y, pos[2].y})  //
     );
-    ivec2 max(                                     //
-        std::max({pos[0].x, pos[1].x, pos[2].x}),  //
-        std::max({pos[0].y, pos[1].y, pos[2].y})   //
+    ivec2 max(                                    //
+        std::max({pos[0].x, pos[1].x, pos[2].x}), //
+        std::max({pos[0].y, pos[1].y, pos[2].y})  //
     );
 
     // Skip rendering when distance between vertices is bigger than 1023x511
     const ivec2 size = max - min;
-    if (size.x >= 1024 || size.y >= 512) return;
+    if (size.x >= 1024 || size.y >= 512)
+        return;
 
-    min = ivec2(                  //
-        gpu->minDrawingX(min.x),  //
-        gpu->minDrawingY(min.y)   //
+    min = ivec2(                 //
+        gpu->minDrawingX(min.x), //
+        gpu->minDrawingY(min.y)  //
     );
-    max = ivec2(                  //
-        gpu->maxDrawingX(max.x),  //
-        gpu->maxDrawingY(max.y)   //
+    max = ivec2(                 //
+        gpu->maxDrawingX(max.x), //
+        gpu->maxDrawingY(max.y)  //
     );
 
     // https://fgiesen.wordpress.com/2013/02/10/optimizing-the-basic-rasterizer/
@@ -254,9 +281,9 @@ void rasterizeTriangle(gpu::GPU* gpu, const primitive::Triangle& triangle) {
 
     // Calculate half-space values for first pixel
     int CY[3] = {
-        orient2d(pos[1], pos[2], min) + bias[0],  //
-        orient2d(pos[2], pos[0], min) + bias[1],  //
-        orient2d(pos[0], pos[1], min) + bias[2]   //
+        orient2d(pos[1], pos[2], min) + bias[0], //
+        orient2d(pos[2], pos[0], min) + bias[1], //
+        orient2d(pos[0], pos[1], min) + bias[2]  //
     };
 
     Attributes startAttributes = calculateStartAttributes<isGouraudShaded, isTextured>(triangle);
@@ -266,55 +293,75 @@ void rasterizeTriangle(gpu::GPU* gpu, const primitive::Triangle& triangle) {
     addXDeltas<isGouraudShaded, isTextured>(startAttributes, deltas, min.x);
 
     ivec2 p;
-    for (p.y = min.y; p.y <= max.y; p.y++) {
+    for (p.y = min.y; p.y <= max.y; p.y++)
+    {
         Attributes attrib = startAttributes;
         int CX[3] = {CY[0], CY[1], CY[2]};
 
-        for (p.x = min.x; p.x <= max.x; p.x++) {
-            if ((CX[0] | CX[1] | CX[2]) > 0) {
+        for (p.x = min.x; p.x <= max.x; p.x++)
+        {
+            if ((CX[0] | CX[1] | CX[2]) > 0)
+            {
                 const PSXColor bg = VRAM[p.y][p.x];
-                if constexpr (checkMaskBeforeDraw) {
-                    if (bg.k) goto DONE;
+                if constexpr (checkMaskBeforeDraw)
+                {
+                    if (bg.k)
+                        goto DONE;
                 }
 
-                RGB colorInterpolated(  //
-                    FROM_FP(attrib.r),  //
-                    FROM_FP(attrib.g),  //
-                    FROM_FP(attrib.b)   //
+                RGB colorInterpolated( //
+                    FROM_FP(attrib.r), //
+                    FROM_FP(attrib.g), //
+                    FROM_FP(attrib.b)  //
                 );
 
-                if constexpr (isDithered) {
+                if constexpr (isDithered)
+                {
                     colorInterpolated = dither(colorInterpolated, p);
                 }
 
                 PSXColor c;
-                if constexpr (bits == ColorDepth::NONE) {
-                    if constexpr (!isGouraudShaded) {
+                if constexpr (bits == ColorDepth::NONE)
+                {
+                    if constexpr (!isGouraudShaded)
+                    {
                         c = colorFlat;
-                    } else {
+                    }
+                    else
+                    {
                         c = colorInterpolated;
                     }
-                } else {
+                }
+                else
+                {
                     const ivec2 uv(FROM_FP(attrib.u), FROM_FP(attrib.v));
                     const ivec2 texel = maskTexel(uv, textureWindow);
                     c = fetchTex<bits>(gpu, texel, triangle.texpage);
-                    if (c.raw == 0x0000) goto DONE;
+                    if (c.raw == 0x0000)
+                        goto DONE;
 
-                    if constexpr (isBlended) {
-                        if constexpr (isGouraudShaded) {
+                    if constexpr (isBlended)
+                    {
+                        if constexpr (isGouraudShaded)
+                        {
                             c = c * colorInterpolated;
-                        } else {
+                        }
+                        else
+                        {
                             c = c * colorFlat;
                         }
 
-                        if constexpr (dithering) {
+                        if constexpr (dithering)
+                        {
                             // Handle dither for Blended-flat
                         }
                     }
                 }
 
-                if constexpr (isSemiTransparent) {
-                    if (!isTextured || c.k) {
+                if constexpr (isSemiTransparent)
+                {
+                    if (!isTextured || c.k)
+                    {
                         c = PSXColor::blend(bg, c, transparency);
                     }
                 }
@@ -338,7 +385,7 @@ void rasterizeTriangle(gpu::GPU* gpu, const primitive::Triangle& triangle) {
 }
 
 // Generate all permutations of rasterizeTriangle so that compiler can provide optimized versions of the function (no ifs in loop)
-using rasterizeTriangle_t = void(gpu::GPU* gpu, const primitive::Triangle& triangle);
+using rasterizeTriangle_t = void(gpu::GPU *gpu, const primitive::Triangle &triangle);
 
 #define E(bits, isSemiTransparent, isGouraudShaded, isBlended, checkMaskBit, dithering) \
     &rasterizeTriangle<bitsToDepth<bits>(), isSemiTransparent, isGouraudShaded, isBlended, checkMaskBit, dithering>
@@ -361,7 +408,7 @@ using rasterizeTriangle_t = void(gpu::GPU* gpu, const primitive::Triangle& trian
     generateTable()
 */
 
-static constexpr rasterizeTriangle_t* rasterizeTriangleDispatchTable[4][2][2][2][2][2] =  //
+static constexpr rasterizeTriangle_t *rasterizeTriangleDispatchTable[4][2][2][2][2][2] = //
     {{{{{{E(0, 0, 0, 0, 0, 0), E(0, 0, 0, 0, 0, 1)}, {E(0, 0, 0, 0, 1, 0), E(0, 0, 0, 0, 1, 1)}},
         {{E(0, 0, 0, 1, 0, 0), E(0, 0, 0, 1, 0, 1)}, {E(0, 0, 0, 1, 1, 0), E(0, 0, 0, 1, 1, 1)}}},
        {{{E(0, 0, 1, 0, 0, 0), E(0, 0, 1, 0, 0, 1)}, {E(0, 0, 1, 0, 1, 0), E(0, 0, 1, 0, 1, 1)}},
@@ -396,7 +443,8 @@ static constexpr rasterizeTriangle_t* rasterizeTriangleDispatchTable[4][2][2][2]
         {{E(16, 1, 1, 1, 0, 0), E(16, 1, 1, 1, 0, 1)}, {E(16, 1, 1, 1, 1, 0), E(16, 1, 1, 1, 1, 1)}}}}}};
 #undef E
 
-void Render::drawTriangle(gpu::GPU* gpu, const primitive::Triangle& triangle) {
+void Render::drawTriangle(gpu::GPU *gpu, const primitive::Triangle &triangle)
+{
     auto bits = (int)bitsToDepth(triangle.bits);
     auto isSemiTransparent = triangle.isSemiTransparent;
     auto isGouraudShaded = triangle.gouraudShading;

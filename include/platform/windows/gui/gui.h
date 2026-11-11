@@ -22,9 +22,10 @@
 
 struct System;
 
-class GUI {
+class GUI
+{
     int busToken;
-    SDL_Window* window;
+    SDL_Window *window;
     bool notInitializedWindowShown = false;
     std::string iniPath;
 
@@ -46,13 +47,13 @@ class GUI {
 
     gui::Toasts toasts;
 
-    void mainMenu(std::unique_ptr<System>& sys);
+    void mainMenu(std::unique_ptr<System> &sys);
     void memoryCardDialog();
     void discDialog();
-    void drawControls(std::unique_ptr<System>& sys);
+    void drawControls(std::unique_ptr<System> &sys);
     void renderController();
 
-   public:
+public:
     static float scale;
 
     bool singleFrame = false;
@@ -67,12 +68,17 @@ class GUI {
     // Drag&drop
     std::optional<std::string> droppedItem;
 
-    enum class DroppedItemDialog { None, Disc, MemoryCard };
+    enum class DroppedItemDialog
+    {
+        None,
+        Disc,
+        MemoryCard
+    };
     DroppedItemDialog droppedItemDialog = DroppedItemDialog::None;
 
-    GUI(SDL_Window* window, void* glContext);
+    GUI(SDL_Window *window, void *glContext);
     ~GUI();
 
-    void processEvent(SDL_Event* e);
-    void render(std::unique_ptr<System>& sys);
+    void processEvent(SDL_Event *e);
+    void render(std::unique_ptr<System> &sys);
 };

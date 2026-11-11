@@ -21,12 +21,14 @@
 #include <iterator>
 #include <mutex>
 
-namespace Sound {
+namespace Sound
+{
     extern std::deque<uint16_t> buffer;
     extern std::mutex mutex;
 
     template <typename Iterator>
-    void append(const Iterator& start, const Iterator& end) {
+    void append(const Iterator &start, const Iterator &end)
+    {
         std::unique_lock<std::mutex> lock{Sound::mutex};
 
         if (Sound::buffer.size() > constants::sound::SIZE)

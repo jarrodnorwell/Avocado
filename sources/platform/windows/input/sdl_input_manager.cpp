@@ -8,14 +8,16 @@
 #warning Vibrations are available for SDL >= 2.0.9
 #endif
 
-SdlInputManager::SdlInputManager() {
+SdlInputManager::SdlInputManager()
+{
 #ifdef VIBRATIONS_ENABLED
     vibrationThread = std::thread(&SdlInputManager::vibrationThreadFunc, this);
 #endif
     busToken = bus.listen<Event::Controller::Vibration>(std::bind(&SdlInputManager::onVibrationEvent, this, std::placeholders::_1));
 }
 
-SdlInputManager::~SdlInputManager() {
+SdlInputManager::~SdlInputManager()
+{
     bus.unlistenAll(busToken);
 
 #ifdef VIBRATIONS_ENABLED
@@ -29,12 +31,15 @@ SdlInputManager::~SdlInputManager() {
 #endif
 }
 
-void SdlInputManager::vibrationThreadFunc() {
-    while (true) {
+void SdlInputManager::vibrationThreadFunc()
+{
+    while (true)
+    {
         std::unique_lock<std::mutex> lk(vibrationMutex);
         vibrationHasNewData.wait(lk);
 
-        if (vibrationThreadExit) {
+        if (vibrationThreadExit)
+        {
             break;
         }
 #ifdef VIBRATIONS_ENABLED
@@ -45,28 +50,35 @@ void SdlInputManager::vibrationThreadFunc() {
     }
 }
 
-void SdlInputManager::onVibrationEvent(Event::Controller::Vibration e) {
+void SdlInputManager::onVibrationEvent(Event::Controller::Vibration e)
+{
     // Vibration output is chosen by DPAD_UP mapped game controller
     std::string keyName = config.controller[e.port - 1].keys["dpad_up"];
     Key key(keyName);
 
-    if (key.type != Key::Type::ControllerMove && key.type != Key::Type::ControllerButton) {
-        return;  // DPAD_UP not mapped to a controller
+    if (key.type != Key::Type::ControllerMove && key.type != Key::Type::ControllerButton)
+    {
+        return; // DPAD_UP not mapped to a controller
     }
 
     auto controller = controllers[key.controller.id - 1];
-    if (controller != nullptr) {
+    if (controller != nullptr)
+    {
         std::unique_lock<std::mutex> lk(vibrationMutex);
         vibrationData = {controller, e};
         vibrationHasNewData.notify_one();
     }
 }
 
-bool SdlInputManager::isMouseBound() {
+bool SdlInputManager::isMouseBound()
+{
     // Check if mouse axis is bound anywhere
-    for (auto& c : config.controller) {
-        for (auto& k : c.keys) {
-            if (k.second.rfind("mouse", 0) == 0) {
+    for (auto &c : config.controller)
+    {
+        for (auto &k : c.keys)
+        {
+            if (k.second.rfind("mouse", 0) == 0)
+            {
                 return true;
             }
         }
@@ -74,8 +86,10 @@ bool SdlInputManager::isMouseBound() {
     return false;
 }
 
-bool SdlInputManager::handleKey(Key key, AnalogValue value) {
-    if (waitingForKeyPress) {
+bool SdlInputManager::handleKey(Key key, AnalogValue value)
+{
+    if (waitingForKeyPress)
+    {
         waitingForKeyPress = false;
         lastPressedKey = key;
         return true;
@@ -83,13 +97,16 @@ bool SdlInputManager::handleKey(Key key, AnalogValue value) {
 
     bool result = false;
 
-    for (int c = 1; c <= 2; c++) {
+    for (int c = 1; c <= 2; c++)
+    {
         auto controller = config.controller[c - 1].keys;
-        for (auto it = controller.begin(); it != controller.end(); ++it) {
+        for (auto it = controller.begin(); it != controller.end(); ++it)
+        {
             auto button = it->first;
             auto keyName = it->second;
 
-            if (Key(keyName) == key) {
+            if (Key(keyName) == key)
+            {
                 auto path = fmt::format("controller/{}/{}", c, button);
                 state[path.c_str()] = value;
                 result = true;
@@ -100,11 +117,14 @@ bool SdlInputManager::handleKey(Key key, AnalogValue value) {
     return result;
 }
 
-void SdlInputManager::fixControllerId(SDL_Event& event) {
+void SdlInputManager::fixControllerId(SDL_Event &event)
+{
     int index = 0;
     auto controller = SDL_GameControllerFromInstanceID(event.cdevice.which);
-    for (auto it = controllers.begin(); it != controllers.end(); ++it) {
-        if (it->second == controller) {
+    for (auto it = controllers.begin(); it != controllers.end(); ++it)
+    {
+        if (it->second == controller)
+        {
             index = it->first;
             break;
         }
@@ -112,7 +132,8 @@ void SdlInputManager::fixControllerId(SDL_Event& event) {
     event.cbutton.which = index + 1;
 }
 
-void SdlInputManager::newFrame() {
+void SdlInputManager::newFrame()
+{
     mouseX = 0;
     mouseY = 0;
 
@@ -122,7 +143,8 @@ void SdlInputManager::newFrame() {
     shouldCaptureMouse = isMouseBound();
 #endif
 
-    if (waitingForKeyPress) return;
+    if (waitingForKeyPress)
+        return;
 
     Key key;
     key.type = Key::Type::MouseMove;
@@ -140,30 +162,37 @@ void SdlInputManager::newFrame() {
     handleKey(key, AnalogValue(0, true));
 }
 
-bool SdlInputManager::handleEvent(SDL_Event& event) {
+bool SdlInputManager::handleEvent(SDL_Event &event)
+{
     auto type = event.type;
 
-    if ((!mouseCaptured || waitingForKeyPress) && event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT
-        && event.button.clicks == 2 && shouldCaptureMouse) {
+    if ((!mouseCaptured || waitingForKeyPress) && event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT && event.button.clicks == 2 && shouldCaptureMouse)
+    {
         mouseLocked = true;
         return true;
     }
 
-    if ((!mouseCaptured || waitingForKeyPress) && (type == SDL_MOUSEBUTTONDOWN || type == SDL_MOUSEBUTTONUP)) {
+    if ((!mouseCaptured || waitingForKeyPress) && (type == SDL_MOUSEBUTTONDOWN || type == SDL_MOUSEBUTTONUP))
+    {
         return handleKey(Key::mouseButton(event.button), AnalogValue(type == SDL_MOUSEBUTTONDOWN));
     }
 
-    if ((!mouseCaptured || waitingForKeyPress) && type == SDL_MOUSEMOTION) {
+    if ((!mouseCaptured || waitingForKeyPress) && type == SDL_MOUSEMOTION)
+    {
         Key key;
 
         mouseX += event.motion.xrel;
         mouseY += event.motion.yrel;
 
-        if (waitingForKeyPress) {
-            if (std::abs(mouseX) > 10) {
+        if (waitingForKeyPress)
+        {
+            if (std::abs(mouseX) > 10)
+            {
                 key = Key::mouseMove(clamp<int32_t>(mouseX, INT8_MIN, INT8_MAX), 0);
                 return handleKey(key, AnalogValue(key.mouse.value));
-            } else if (std::abs(mouseY) > 10) {
+            }
+            else if (std::abs(mouseY) > 10)
+            {
                 key = Key::mouseMove(0, clamp<int32_t>(mouseY, INT8_MIN, INT8_MAX));
                 return handleKey(key, AnalogValue(key.mouse.value));
             }
@@ -182,33 +211,40 @@ bool SdlInputManager::handleEvent(SDL_Event& event) {
         return result;
     }
 
-    if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
-        switch (event.key.keysym.sym) {
-            case SDLK_ESCAPE:
-            case SDLK_LCTRL:
-            case SDLK_LALT:
-            case SDLK_RCTRL:
-            case SDLK_RALT:
-                if (mouseLocked) {
-                    mouseLocked = false;
-                    SDL_SetRelativeMouseMode(SDL_FALSE);
-                    return true;
-                }
-                break;
+    if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
+    {
+        switch (event.key.keysym.sym)
+        {
+        case SDLK_ESCAPE:
+        case SDLK_LCTRL:
+        case SDLK_LALT:
+        case SDLK_RCTRL:
+        case SDLK_RALT:
+            if (mouseLocked)
+            {
+                mouseLocked = false;
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+                return true;
+            }
+            break;
         }
-        if ((event.key.keysym.mod & KMOD_ALT) && event.key.keysym.sym == SDLK_RETURN) {
+        if ((event.key.keysym.mod & KMOD_ALT) && event.key.keysym.sym == SDLK_RETURN)
+        {
             bus.notify(Event::Gui::ToggleFullscreen{});
             return true;
         }
     }
 
-    if ((!keyboardCaptured || waitingForKeyPress) && (type == SDL_KEYDOWN || type == SDL_KEYUP)) {
+    if ((!keyboardCaptured || waitingForKeyPress) && (type == SDL_KEYDOWN || type == SDL_KEYUP))
+    {
         return handleKey(Key::keyboard(event.key.keysym.sym), AnalogValue(type == SDL_KEYDOWN));
     }
 
-    if (type == SDL_CONTROLLERAXISMOTION) {
+    if (type == SDL_CONTROLLERAXISMOTION)
+    {
         fixControllerId(event);
-        if (waitingForKeyPress && !(std::abs(event.caxis.value) > 8192)) {
+        if (waitingForKeyPress && !(std::abs(event.caxis.value) > 8192))
+        {
             return false;
         }
         auto key = Key::controllerMove(event.caxis);
@@ -225,23 +261,28 @@ bool SdlInputManager::handleEvent(SDL_Event& event) {
         return result;
     }
 
-    if (type == SDL_CONTROLLERBUTTONDOWN || type == SDL_CONTROLLERBUTTONUP) {
+    if (type == SDL_CONTROLLERBUTTONDOWN || type == SDL_CONTROLLERBUTTONUP)
+    {
         fixControllerId(event);
         return handleKey(Key::controllerButton(event.cbutton), AnalogValue(type == SDL_CONTROLLERBUTTONDOWN));
     }
 
-    if (event.type == SDL_CONTROLLERDEVICEADDED) {
+    if (event.type == SDL_CONTROLLERDEVICEADDED)
+    {
         int index = event.cdevice.which;
         controllers[index] = SDL_GameControllerOpen(index);
         fmt::print("Controller {} connected\n", SDL_GameControllerName(controllers[index]));
         return true;
     }
 
-    if (event.type == SDL_CONTROLLERDEVICEREMOVED) {
+    if (event.type == SDL_CONTROLLERDEVICEREMOVED)
+    {
         int joystickId = event.cdevice.which;
         auto controller = SDL_GameControllerFromInstanceID(joystickId);
-        for (auto it = controllers.begin(); it != controllers.end(); ++it) {
-            if (it->second == controller) {
+        for (auto it = controllers.begin(); it != controllers.end(); ++it)
+        {
+            if (it->second == controller)
+            {
                 fmt::print("Controller {} disconnected\n", SDL_GameControllerName(controller));
                 SDL_GameControllerClose(controller);
                 controllers.erase(it);

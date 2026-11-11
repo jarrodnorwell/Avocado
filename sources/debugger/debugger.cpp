@@ -18,11 +18,12 @@
 #include <fmt/format.h>
 #include <fmt/format-inl.h>
 
-namespace debugger {
-bool mapRegisterNames = true;
-bool followPC = true;
+namespace debugger
+{
+    bool mapRegisterNames = true;
+    bool followPC = true;
 
-// clang-format off
+    // clang-format off
 	std::array<const char*, 32> regNames = {
 		"zero",
 		"at",
@@ -125,43 +126,55 @@ bool followPC = true;
         "zsf4",      // r62
         "flag",      // r63
     };
-// clang-format on
+    // clang-format on
 
-bool Instruction::isBranch() const {
-    auto sub = (opcode.rt & 0x11);
-    if (opcode.op == 1 && (sub == 0 || sub == 1 || sub == 16 || sub == 17)) return true;
-    if (opcode.op == 4 || opcode.op == 5 || opcode.op == 6 || opcode.op == 7) return true;
-    return false;
-}
-
-std::string reg(unsigned int n) {
-    if (mapRegisterNames) return regNames[n];
-    return fmt::format("r{}", n);
-}
-
-std::string cop0reg(unsigned int n) {
-    if (mapRegisterNames && n < cop0RegNames.size()) return cop0RegNames.at(n);
-    return fmt::format("cop0r{}", n);
-}
-
-std::string cop2reg(unsigned int n) {
-    if (mapRegisterNames && n < cop2RegNames.size()) return cop2RegNames.at(n);
-    return fmt::format("cop2r{}", n);
-}
-
-Instruction mapSpecialInstruction(mips::Opcode& i);
-
-std::string hexWithSign(int16_t hex) {
-    if (hex >= 0) {
-        return fmt::format("0x{:04x}", static_cast<uint16_t>(hex));
+    bool Instruction::isBranch() const
+    {
+        auto sub = (opcode.rt & 0x11);
+        if (opcode.op == 1 && (sub == 0 || sub == 1 || sub == 16 || sub == 17))
+            return true;
+        if (opcode.op == 4 || opcode.op == 5 || opcode.op == 6 || opcode.op == 7)
+            return true;
+        return false;
     }
 
-    return fmt::format("-0x{:04x}", static_cast<uint16_t>(hex * -1));
-}
+    std::string reg(unsigned int n)
+    {
+        if (mapRegisterNames)
+            return regNames[n];
+        return fmt::format("r{}", n);
+    }
 
-Instruction decodeInstruction(mips::Opcode& i) {
-    Instruction ins;
-    ins.opcode = i;
+    std::string cop0reg(unsigned int n)
+    {
+        if (mapRegisterNames && n < cop0RegNames.size())
+            return cop0RegNames.at(n);
+        return fmt::format("cop0r{}", n);
+    }
+
+    std::string cop2reg(unsigned int n)
+    {
+        if (mapRegisterNames && n < cop2RegNames.size())
+            return cop2RegNames.at(n);
+        return fmt::format("cop2r{}", n);
+    }
+
+    Instruction mapSpecialInstruction(mips::Opcode &i);
+
+    std::string hexWithSign(int16_t hex)
+    {
+        if (hex >= 0)
+        {
+            return fmt::format("0x{:04x}", static_cast<uint16_t>(hex));
+        }
+
+        return fmt::format("-0x{:04x}", static_cast<uint16_t>(hex * -1));
+    }
+
+    Instruction decodeInstruction(mips::Opcode &i)
+    {
+        Instruction ins;
+        ins.opcode = i;
 
 #define U16(x) static_cast<unsigned short>(x)
 
@@ -177,20 +190,24 @@ Instruction decodeInstruction(mips::Opcode& i) {
 
 #define BRANCH_TYPE fmt::format("{}, {}", R(i.rs), U16(i.offset))
 
-    switch (i.op) {
-        case 0: ins = mapSpecialInstruction(i); break;
+        switch (i.op)
+        {
+        case 0:
+            ins = mapSpecialInstruction(i);
+            break;
 
         case 1:
-            switch (i.rt & 0x11) {
+            switch (i.rt & 0x11)
+            {
                 O(0, "bltz", BRANCH_TYPE);
                 O(1, "bgez", BRANCH_TYPE);
                 O(16, "bltzal", BRANCH_TYPE);
                 O(17, "bgezal", BRANCH_TYPE);
 
-                default:
-                    ins.mnemonic = fmt::format("0x{:08x}", i.opcode);
-                    ins.valid = false;
-                    break;
+            default:
+                ins.mnemonic = fmt::format("0x{:08x}", i.opcode);
+                ins.valid = false;
+                break;
             }
             break;
 
@@ -211,36 +228,38 @@ Instruction decodeInstruction(mips::Opcode& i) {
             O(15, "lui", fmt::format("{}, 0x{:04x}", R(i.rt), U16(i.offset)));
 
         case 16:
-            switch (i.rs) {
-                case 0:
-                    ins.mnemonic = std::string("mfc0");
-                    ins.parameters = fmt::format("{}, {}", R(i.rt), cop0reg(i.rd).c_str());
-                    ins.valid = i.rd < 16;
-                    break;
-                case 4:
-                    ins.mnemonic = std::string("mtc0");
-                    ins.parameters = fmt::format("{}, {}", R(i.rt), cop0reg(i.rd).c_str());
-                    ins.valid = i.rd < 16;
-                    break;
-                    O(16, "rfe", "");
-                default:
-                    ins.mnemonic = fmt::format("cop0 - 0x{:08x}", i.opcode);
-                    ins.valid = false;
-                    break;
+            switch (i.rs)
+            {
+            case 0:
+                ins.mnemonic = std::string("mfc0");
+                ins.parameters = fmt::format("{}, {}", R(i.rt), cop0reg(i.rd).c_str());
+                ins.valid = i.rd < 16;
+                break;
+            case 4:
+                ins.mnemonic = std::string("mtc0");
+                ins.parameters = fmt::format("{}, {}", R(i.rt), cop0reg(i.rd).c_str());
+                ins.valid = i.rd < 16;
+                break;
+                O(16, "rfe", "");
+            default:
+                ins.mnemonic = fmt::format("cop0 - 0x{:08x}", i.opcode);
+                ins.valid = false;
+                break;
             }
             break;
             O(17, "cop1", "");
 
         case 18:
-            switch (i.rs) {
+            switch (i.rs)
+            {
                 O(0, "mfc2", fmt::format("{}, {}", R(i.rt), cop2reg(i.rd).c_str()));
                 O(2, "cfc2", fmt::format("{}, {}", R(i.rt), cop2reg(i.rd + 32).c_str()));
                 O(4, "mtc2", fmt::format("{}, {}", R(i.rt), cop2reg(i.rd).c_str()));
                 O(6, "ctc2", fmt::format("{}, {}", R(i.rt), cop2reg(i.rd + 32).c_str()));
-                default:
-                    ins.mnemonic = fmt::format("cop2 - 0x{:08x}", i.opcode);
-                    ins.valid = false;
-                    break;
+            default:
+                ins.mnemonic = fmt::format("cop2 - 0x{:08x}", i.opcode);
+                ins.valid = false;
+                break;
             }
             break;
             O(19, "cop3", "");
@@ -260,28 +279,33 @@ Instruction decodeInstruction(mips::Opcode& i) {
             O(46, "swr", LOADTYPE);
 
             // TODO: Add dummy instructions
-            O(50, "lwc2", "");  // TODO: add valid prototype
-            O(58, "swc2", "");  // TODO: add valid prototype
+            O(50, "lwc2", ""); // TODO: add valid prototype
+            O(58, "swc2", ""); // TODO: add valid prototype
 
         default:
             ins.mnemonic = fmt::format("0x{:08x}", i.opcode);
             ins.valid = false;
             break;
+        }
+        return ins;
     }
-    return ins;
-}
 
-Instruction mapSpecialInstruction(mips::Opcode& i) {
-    Instruction ins;
-    ins.opcode = i;
+    Instruction mapSpecialInstruction(mips::Opcode &i)
+    {
+        Instruction ins;
+        ins.opcode = i;
 #define SHIFT_TYPE fmt::format("{}, {}, {}", R(i.rd), R(i.rt), (int)i.sh)
 #define ATYPE fmt::format("{}, {}, {}", R(i.rd), R(i.rs), R(i.rt))
 
-    switch (i.fun) {
+        switch (i.fun)
+        {
         case 0:
-            if (i.rt == 0 && i.rd == 0 && i.sh == 0) {
+            if (i.rt == 0 && i.rd == 0 && i.sh == 0)
+            {
                 ins.mnemonic = "nop";
-            } else {
+            }
+            else
+            {
                 ins.mnemonic = "sll";
                 ins.parameters = SHIFT_TYPE;
             }
@@ -323,7 +347,7 @@ Instruction mapSpecialInstruction(mips::Opcode& i) {
             ins.mnemonic = fmt::format("special 0x{:02x}", (int)i.fun);
             ins.valid = false;
             break;
+        }
+        return ins;
     }
-    return ins;
-}
-};  // namespace debugger
+}; // namespace debugger

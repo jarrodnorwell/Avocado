@@ -4,10 +4,11 @@
 
 #include <glad/glad.h>
 
-class Uniform {
+class Uniform
+{
     GLuint id;
 
-   public:
+public:
     Uniform(GLuint id);
     ~Uniform();
 

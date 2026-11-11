@@ -75,16 +75,19 @@
  * Enables BIOS syscall hooking/logging
  */
 
-namespace bios {
-struct Function;
+namespace bios
+{
+    struct Function;
 }
 
-struct System {
-    enum class State {
-        halted,  // Cannot be run until reset
-        stop,    // after reset
-        pause,   // if debugger attach
-        run      // normal state
+struct System
+{
+    enum class State
+    {
+        halted, // Cannot be run until reset
+        stop,   // after reset
+        pause,  // if debugger attach
+        run     // normal state
     };
 
     static const int BIOS_BASE = 0x1fc00000;
@@ -108,7 +111,7 @@ struct System {
 
     uint16_t gt2_data{0};
 
-    bool debugOutput = true;  // Print BIOS logs
+    bool debugOutput = true; // Print BIOS logs
     bool biosLoaded = false;
 
     uint64_t cycles;
@@ -145,7 +148,7 @@ struct System {
     void writeMemory8(uint32_t address, uint8_t data);
     void writeMemory16(uint32_t address, uint16_t data);
     void writeMemory32(uint32_t address, uint32_t data);
-    void printFunctionInfo(const char* functionNum, const bios::Function& f);
+    void printFunctionInfo(const char *functionNum, const bios::Function &f);
     void emulateFrame();
     void softReset();
     bool isSystemReady();
@@ -154,14 +157,19 @@ struct System {
     std::string biosPath;
     int biosLog = 0;
     bool printStackTrace = false;
-    bool loadBios(const std::string& name);
-    bool loadExpansion(const std::vector<uint8_t>& _exe);
-    bool loadExeFile(const std::vector<uint8_t>& _exe);
+    bool loadBios(const std::string &name);
+    bool loadExpansion(const std::vector<uint8_t> &_exe);
+    bool loadExeFile(const std::vector<uint8_t> &_exe);
     void dumpRam();
 
 #ifdef ENABLE_IO_LOG
-    struct IO_LOG_ENTRY {
-        enum class MODE { READ, WRITE } mode;
+    struct IO_LOG_ENTRY
+    {
+        enum class MODE
+        {
+            READ,
+            WRITE
+        } mode;
 
         uint32_t size;
         uint32_t addr;
@@ -173,7 +181,8 @@ struct System {
 #endif
 
     template <class Archive>
-    void serialize(Archive& ar) {
+    void serialize(Archive &ar)
+    {
         ar(*cpu);
         ar(*gpu);
         ar(*spu);
@@ -185,7 +194,8 @@ struct System {
         ar(*serial);
         ar(*mdec);
         ar(*controller);
-        for (auto i : {0, 1, 2}) ar(*timer[i]);
+        for (auto i : {0, 1, 2})
+            ar(*timer[i]);
 
         ar(ram);
         ar(scratchpad);

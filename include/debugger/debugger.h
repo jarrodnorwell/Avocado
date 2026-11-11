@@ -16,18 +16,20 @@
 
 #include <string>
 
-namespace debugger {
-struct Instruction {
-    mips::Opcode opcode;
-    std::string mnemonic;
-    std::string parameters;
-    bool valid = true;
+namespace debugger
+{
+    struct Instruction
+    {
+        mips::Opcode opcode;
+        std::string mnemonic;
+        std::string parameters;
+        bool valid = true;
 
-    bool isBranch() const;
-};
+        bool isBranch() const;
+    };
 
-extern bool mapRegisterNames;
-extern bool followPC;
-std::string reg(unsigned int n);
-Instruction decodeInstruction(mips::Opcode& i);
-};  // namespace debugger
+    extern bool mapRegisterNames;
+    extern bool followPC;
+    std::string reg(unsigned int n);
+    Instruction decodeInstruction(mips::Opcode &i);
+}; // namespace debugger

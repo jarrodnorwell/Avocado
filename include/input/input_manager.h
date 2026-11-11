@@ -4,9 +4,11 @@
 #include <string>
 #include <unordered_map>
 
-class InputManager {
-   public:
-    struct AnalogValue {
+class InputManager
+{
+public:
+    struct AnalogValue
+    {
         uint8_t value;
         bool isRelative;
 
@@ -15,17 +17,17 @@ class InputManager {
         AnalogValue() : value(0), isRelative(false) {}
     };
 
-   private:
+private:
     const int DIGITAL_THRESHOLD = UINT8_MAX / 4;
-    static InputManager* _instance;
+    static InputManager *_instance;
 
-   protected:
+protected:
     std::unordered_map<std::string, AnalogValue> state;
 
-   public:
-    bool getDigital(const std::string& key);
-    AnalogValue getAnalog(const std::string& key);
+public:
+    bool getDigital(const std::string &key);
+    AnalogValue getAnalog(const std::string &key);
 
-    static void setInstance(InputManager* inputManager);
-    static InputManager* getInstance();
+    static void setInstance(InputManager *inputManager);
+    static InputManager *getInstance();
 };

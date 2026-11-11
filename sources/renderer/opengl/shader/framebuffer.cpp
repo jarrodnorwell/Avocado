@@ -16,7 +16,8 @@
 
 GLuint Framebuffer::currentId = 0;
 
-Framebuffer::Framebuffer(GLuint colorTexture) {
+Framebuffer::Framebuffer(GLuint colorTexture)
+{
     GLint currentFramebuffer;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentFramebuffer);
 
@@ -24,7 +25,8 @@ Framebuffer::Framebuffer(GLuint colorTexture) {
     glBindFramebuffer(GL_FRAMEBUFFER, id);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
 
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
         fmt::print("[GL] Framebuffer is not complete!\n");
     }
 
@@ -33,8 +35,10 @@ Framebuffer::Framebuffer(GLuint colorTexture) {
 
 Framebuffer::~Framebuffer() { glDeleteFramebuffers(1, &id); }
 
-void Framebuffer::bind() {
-    if (currentId != id) {
+void Framebuffer::bind()
+{
+    if (currentId != id)
+    {
         currentId = id;
         glBindFramebuffer(GL_FRAMEBUFFER, id);
     }

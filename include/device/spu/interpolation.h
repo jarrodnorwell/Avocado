@@ -14,6 +14,7 @@
 
 #endif // TARGET_OS_IPHONE
 
-namespace spu {
+namespace spu
+{
     int16_t interpolate(Voice &v, int pos, int i);
-}  // namespace spu
+} // namespace spu

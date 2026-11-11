@@ -19,7 +19,8 @@
 
 #include <glad/glad.h>
 
-struct Image {
+struct Image
+{
     GLuint id;
     int w;
     int h;
@@ -27,4 +28,4 @@ struct Image {
     Image(GLuint id, int w, int h);
 };
 
-std::optional<Image> getImage(const std::string& image, const std::string& path = avocado::assetsPath());
+std::optional<Image> getImage(const std::string &image, const std::string &path = avocado::assetsPath());

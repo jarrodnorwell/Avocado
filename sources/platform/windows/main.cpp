@@ -31,7 +31,8 @@
 #undef main
 
 // Warning: this method might have 1 or more milliseconds of inaccuracy.
-double limitFramerate(bool framelimiter, bool ntsc) {
+double limitFramerate(bool framelimiter, bool ntsc)
+{
     static double timeToSkip = 0;
     static double counterFrequency = (double)SDL_GetPerformanceFrequency();
     static double startTime = SDL_GetPerformanceCounter() / counterFrequency;
@@ -44,18 +45,24 @@ double limitFramerate(bool framelimiter, bool ntsc) {
 
     double frameTime = ntsc ? (1.0 / timing::NTSC_FRAMERATE) : (1.0 / timing::PAL_FRAMERATE);
 
-    if (framelimiter && deltaTime < frameTime) {
+    if (framelimiter && deltaTime < frameTime)
+    {
         // If deltaTime was shorter than frameTime - spin
-        if (deltaTime < frameTime - timeToSkip) {
-            while (deltaTime < frameTime - timeToSkip) {  // calculate real difference
+        if (deltaTime < frameTime - timeToSkip)
+        {
+            while (deltaTime < frameTime - timeToSkip)
+            { // calculate real difference
                 SDL_Delay(1);
 
                 currentTime = SDL_GetPerformanceCounter() / counterFrequency;
                 deltaTime = currentTime - startTime;
             }
             timeToSkip -= (frameTime - deltaTime);
-            if (timeToSkip < 0.0) timeToSkip = 0.0;
-        } else {  // Else - accumulate
+            if (timeToSkip < 0.0)
+                timeToSkip = 0.0;
+        }
+        else
+        { // Else - accumulate
             timeToSkip += deltaTime - frameTime;
         }
     }
@@ -64,7 +71,8 @@ double limitFramerate(bool framelimiter, bool ntsc) {
     fpsTime += deltaTime;
     deltaFrames++;
 
-    if (fpsTime > 0.25f) {
+    if (fpsTime > 0.25f)
+    {
         fps = (double)deltaFrames / fpsTime;
         deltaFrames = 0;
         fpsTime = 0.0;
@@ -73,26 +81,30 @@ double limitFramerate(bool framelimiter, bool ntsc) {
     return fps;
 }
 
-void fatalError(const std::string& error) {
+void fatalError(const std::string &error)
+{
     fmt::print(stderr, "[FATAL] {}", error);
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Avocado", error.c_str(), nullptr);
     SDL_Quit();
 }
 
-void changeWorkingDirectory() {
+void changeWorkingDirectory()
+{
 #if defined(ANDROID)
-    avocado::PATH_DATA = "data";  // Search assets by default
+    avocado::PATH_DATA = "data"; // Search assets by default
 #else
     fs::path workingDirectory = fs::current_path();
 
 #if defined(BUILD_IS_RELEASE)
-    char* basePath = SDL_GetBasePath();
-    if (basePath != nullptr) {
+    char *basePath = SDL_GetBasePath();
+    if (basePath != nullptr)
+    {
         workingDirectory = basePath;
         SDL_free(basePath);
     }
 #endif
-    if (getenv("APPIMAGE") != nullptr) {
+    if (getenv("APPIMAGE") != nullptr)
+    {
         workingDirectory = workingDirectory / ".." / "share" / "avocado";
     }
 
@@ -100,35 +112,45 @@ void changeWorkingDirectory() {
     avocado::PATH_DATA = workingDirectory.string();
 #endif
 
-    auto ensureDirectoryExist = [](const fs::path& path) -> bool {
-        if (fs::exists(path) && fs::is_directory(path)) {
+    auto ensureDirectoryExist = [](const fs::path &path) -> bool
+    {
+        if (fs::exists(path) && fs::is_directory(path))
+        {
             return true;
         }
-        try {
-            if (fs::create_directory(path)) {
+        try
+        {
+            if (fs::create_directory(path))
+            {
                 return true;
             }
-        } catch (fs::filesystem_error& err) {
+        }
+        catch (fs::filesystem_error &err)
+        {
         }
         return false;
     };
 
 #if defined(ANDROID)
-    auto getAndroidExternalPath = [ensureDirectoryExist]() -> std::string {
-        if (hasExternalStoragePermission() && (SDL_AndroidGetExternalStorageState() & SDL_ANDROID_EXTERNAL_STORAGE_WRITE) != 0) {
+    auto getAndroidExternalPath = [ensureDirectoryExist]() -> std::string
+    {
+        if (hasExternalStoragePermission() && (SDL_AndroidGetExternalStorageState() & SDL_ANDROID_EXTERNAL_STORAGE_WRITE) != 0)
+        {
             // Try - /sdcard/avocado
             auto path = fs::path("/sdcard/avocado");
-            if (ensureDirectoryExist(path)) {
+            if (ensureDirectoryExist(path))
+            {
                 return path.string();
             }
 
             // Try external storage
             path = fs::path(SDL_AndroidGetExternalStoragePath());
-            if (ensureDirectoryExist(path)) {
+            if (ensureDirectoryExist(path))
+            {
                 return path.string();
             }
         }
-        return SDL_AndroidGetInternalStoragePath();  // Almost the same as SDL_GetPrefPath
+        return SDL_AndroidGetInternalStoragePath(); // Almost the same as SDL_GetPrefPath
     };
     avocado::PATH_USER = getAndroidExternalPath();
 #else
@@ -136,7 +158,8 @@ void changeWorkingDirectory() {
     if (!fs::exists(prefPath))
         fs::create_directory(prefPath);
 
-    if (!prefPath.empty()) {
+    if (!prefPath.empty())
+    {
         avocado::PATH_USER = prefPath.string();
         // SDL_free(prefPath);
     }
@@ -144,10 +167,12 @@ void changeWorkingDirectory() {
     avocado::PATH_DATA = replaceAll(avocado::PATH_DATA, "\\", "/");
     avocado::PATH_USER = replaceAll(avocado::PATH_USER, "\\", "/");
 
-    if (!endsWith(avocado::PATH_DATA, "/")) {
+    if (!endsWith(avocado::PATH_DATA, "/"))
+    {
         avocado::PATH_DATA += "/";
     }
-    if (!endsWith(avocado::PATH_USER, "/")) {
+    if (!endsWith(avocado::PATH_USER, "/"))
+    {
         avocado::PATH_USER += "/";
     }
 
@@ -158,19 +183,22 @@ void changeWorkingDirectory() {
         avocado::isoPath(),
     };
 
-    for (auto& d : dirsToCreate) {
+    for (auto &d : dirsToCreate)
+    {
         ensureDirectoryExist(fs::path(d));
     }
 
     chdir(avocado::PATH_USER.c_str());
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     changeWorkingDirectory();
 
     loadConfigFile();
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) != 0)
+    {
         fatalError(fmt::format("Cannot init SDL ({})", SDL_GetError()));
         return 1;
     }
@@ -179,20 +207,23 @@ int main(int argc, char** argv) {
 
     auto opengl = std::make_unique<OpenGL>();
 
-    SDL_Window* window = SDL_CreateWindow("Avocado", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, OpenGL::resWidth * 2, OpenGL::resHeight * 2,
-        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
-    if (window == nullptr) {
+    SDL_Window *window = SDL_CreateWindow("Avocado", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, OpenGL::resWidth * 2, OpenGL::resHeight * 2,
+                                          SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+    if (window == nullptr)
+    {
         fatalError(fmt::format("Cannot create window ({})", SDL_GetError()));
         return 1;
     }
 
     SDL_GLContext glContext = SDL_GL_CreateContext(window);
-    if (glContext == nullptr) {
+    if (glContext == nullptr)
+    {
         fatalError(fmt::format("Cannot create OpenGL context ({})", SDL_GetError()));
         return 1;
     }
 
-    if (!opengl->setup()) {
+    if (!opengl->setup())
+    {
         fatalError("Cannot setup graphics");
         return 1;
     }
@@ -202,7 +233,8 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<System> sys = system_tools::hardReset();
 
-    int busToken = bus.listen<Event::File::Load>([&](auto e) {
+    int busToken = bus.listen<Event::File::Load>([&](auto e)
+                                                 {
         if (e.action == Event::File::Load::Action::ask && (disc::isDiscImage(e.file) || memory_card::isMemoryCardImage(e.file))) {
             // Show dialog and decide what to do
             gui->droppedItem = e.file;
@@ -253,48 +285,53 @@ int main(int argc, char** argv) {
         system_tools::loadFile(sys, e.file);
         if (isPaused && sys->state != System::State::pause) {
             sys->state = System::State::pause;
-        }
-        });
+        } });
 
     bool exitProgram = false;
-    bus.listen<Event::File::Exit>(busToken, [&](auto) { exitProgram = true; });
-    bus.listen<Event::System::SoftReset>(busToken, [&](auto) { sys->softReset(); });
-    bus.listen<Event::System::HardReset>(busToken, [&](auto) { sys = system_tools::hardReset(); });
-    bus.listen<Event::System::SaveState>(busToken, [&](auto e) { state::quickSave(sys.get(), e.slot); });
-    bus.listen<Event::System::LoadState>(busToken, [&](auto e) { state::quickLoad(sys.get(), e.slot); });
+    bus.listen<Event::File::Exit>(busToken, [&](auto)
+                                  { exitProgram = true; });
+    bus.listen<Event::System::SoftReset>(busToken, [&](auto)
+                                         { sys->softReset(); });
+    bus.listen<Event::System::HardReset>(busToken, [&](auto)
+                                         { sys = system_tools::hardReset(); });
+    bus.listen<Event::System::SaveState>(busToken, [&](auto e)
+                                         { state::quickSave(sys.get(), e.slot); });
+    bus.listen<Event::System::LoadState>(busToken, [&](auto e)
+                                         { state::quickLoad(sys.get(), e.slot); });
 
-    bus.listen<Event::Controller::MemoryCardContentsChanged>(busToken, [&](auto e) {
+    bus.listen<Event::Controller::MemoryCardContentsChanged>(busToken, [&](auto e)
+                                                             {
         // TODO: throttleLast save event
-        system_tools::saveMemoryCard(sys, e.slot);
-    });
+        system_tools::saveMemoryCard(sys, e.slot); });
 
-    bus.listen<Event::Controller::MemoryCardSwapped>(busToken, [&](auto e) {
+    bus.listen<Event::Controller::MemoryCardSwapped>(busToken, [&](auto e)
+                                                     {
         sys->controller->card[e.slot]->inserted = false;
         for (int i = 0; i < 60; i++) sys->emulateFrame();
 
-        system_tools::loadMemoryCard(sys, e.slot);
-        });
+        system_tools::loadMemoryCard(sys, e.slot); });
 
-    bus.listen<Event::Gui::ToggleFullscreen>(busToken, [&](auto) {
+    bus.listen<Event::Gui::ToggleFullscreen>(busToken, [&](auto)
+                                             {
         if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
             SDL_SetWindowFullscreen(window, 0);
         }
         else {
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-        }
-        });
+        } });
 
-    bus.listen<Event::Config::Spu>(busToken, [&](auto) {
+    bus.listen<Event::Config::Spu>(busToken, [&](auto)
+                                   {
         bool soundEnabled = config.options.sound.enabled;
         if (soundEnabled) {
             Sound::play();
         }
         else {
             Sound::stop();
-        }
-        });
+        } });
 
-    if (config.options.sound.enabled) {
+    if (config.options.sound.enabled)
+    {
         Sound::play();
     }
 
@@ -304,19 +341,25 @@ int main(int argc, char** argv) {
     auto inputManager = std::make_unique<SdlInputManager>();
     InputManager::setInstance(inputManager.get());
 
-    if (!sys->isSystemReady()) {
+    if (!sys->isSystemReady())
+    {
         sys->state = System::State::stop;
     }
-    else {
+    else
+    {
         sys->state = System::State::run;
 
         // If argument given - open that file (same as drag and drop)
-        if (argc > 1) {
+        if (argc > 1)
+        {
             system_tools::loadFile(sys, argv[1]);
         }
-        else {
-            if (config.options.emulator.preserveState) {
-                if (state::loadLastState(sys.get())) {
+        else
+        {
+            if (config.options.emulator.preserveState)
+            {
+                if (state::loadLastState(sys.get()))
+                {
                     toast("Loaded last state");
                 }
             }
@@ -328,10 +371,13 @@ int main(int argc, char** argv) {
     bool forceRedraw = false;
 
     SDL_Event event;
-    while (running && !exitProgram) {
+    while (running && !exitProgram)
+    {
         bool newEvent = false;
-        if (!forceRedraw && sys->state != System::State::run) {
-            if (SDL_WaitEventTimeout(&event, 1000)) {
+        if (!forceRedraw && sys->state != System::State::run)
+        {
+            if (SDL_WaitEventTimeout(&event, 1000))
+            {
                 newEvent = true;
             }
         }
@@ -341,88 +387,115 @@ int main(int argc, char** argv) {
         SDL_SetRelativeMouseMode((SDL_bool)lockMouse);
 
         inputManager->newFrame();
-        while (newEvent || SDL_PollEvent(&event)) {
+        while (newEvent || SDL_PollEvent(&event))
+        {
             gui->processEvent(&event);
 
             inputManager->keyboardCaptured = ImGui::GetIO().WantCaptureKeyboard;
             inputManager->mouseCaptured = ImGui::GetIO().WantCaptureMouse;
 
             newEvent = false;
-            if (inputManager->handleEvent(event)) continue;
-            if (event.type == SDL_QUIT || (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)) running = false;
+            if (inputManager->handleEvent(event))
+                continue;
+            if (event.type == SDL_QUIT || (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE))
+                running = false;
 
             Key button = Key();
-            if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
+            if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
+            {
                 button = Key::keyboard(event.key.keysym.sym);
             }
-            else if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+            else if (event.type == SDL_CONTROLLERBUTTONDOWN)
+            {
                 button = Key::controllerButton(event.cbutton);
             }
-            else if (event.type == SDL_CONTROLLERAXISMOTION) {
-                if (std::abs(event.caxis.value) == 32767) button = Key::controllerMove(event.caxis);
+            else if (event.type == SDL_CONTROLLERAXISMOTION)
+            {
+                if (std::abs(event.caxis.value) == 32767)
+                    button = Key::controllerMove(event.caxis);
             }
 
-            if (!inputManager->keyboardCaptured && button.type != Key::Type::None) {
-                if (event.key.keysym.sym == SDLK_ESCAPE) running = false;
-                if (event.key.keysym.sym == SDLK_AC_BACK) running = false;
-                if (button == Key(config.hotkeys["toggle_menu"])) gui->showMenu = !gui->showMenu;
-                if (button == Key(config.hotkeys["reset"])) {
-                    if (event.key.keysym.mod & KMOD_SHIFT) {
+            if (!inputManager->keyboardCaptured && button.type != Key::Type::None)
+            {
+                if (event.key.keysym.sym == SDLK_ESCAPE)
+                    running = false;
+                if (event.key.keysym.sym == SDLK_AC_BACK)
+                    running = false;
+                if (button == Key(config.hotkeys["toggle_menu"]))
+                    gui->showMenu = !gui->showMenu;
+                if (button == Key(config.hotkeys["reset"]))
+                {
+                    if (event.key.keysym.mod & KMOD_SHIFT)
+                    {
                         sys = system_tools::hardReset();
                         toast("Hard reset");
                     }
-                    else {
+                    else
+                    {
                         sys->softReset();
                         toast("Soft reset");
                     }
                 }
-                if (button == Key(config.hotkeys["close_tray"])) {
+                if (button == Key(config.hotkeys["close_tray"]))
+                {
                     sys->cdrom->setShell(!sys->cdrom->getShell());
                     toast(fmt::format("Shell {}", sys->cdrom->getShell() ? "open" : "closed"));
                 }
-                if (button == Key(config.hotkeys["quick_save"])) {
+                if (button == Key(config.hotkeys["quick_save"]))
+                {
                     bus.notify(Event::System::SaveState{});
                 }
-                if (button == Key(config.hotkeys["single_frame"])) {
+                if (button == Key(config.hotkeys["single_frame"]))
+                {
                     gui->singleFrame = true;
                     sys->state = System::State::run;
                 }
-                if (button == Key(config.hotkeys["quick_load"])) {
+                if (button == Key(config.hotkeys["quick_load"]))
+                {
                     bus.notify(Event::System::LoadState{});
                 }
-                if (button == Key(config.hotkeys["single_step"])) {
+                if (button == Key(config.hotkeys["single_step"]))
+                {
                     sys->singleStep();
                 }
-                if (button == Key(config.hotkeys["toggle_pause"])) {
-                    if (sys->state == System::State::pause) {
+                if (button == Key(config.hotkeys["toggle_pause"]))
+                {
+                    if (sys->state == System::State::pause)
+                    {
                         sys->state = System::State::run;
                     }
-                    else if (sys->state == System::State::run) {
+                    else if (sys->state == System::State::run)
+                    {
                         sys->state = System::State::pause;
                     }
                     toast(fmt::format("Emulation {}", sys->state == System::State::run ? "resumed" : "paused"));
                 }
-                if (button == Key(config.hotkeys["toggle_framelimit"])) {
+                if (button == Key(config.hotkeys["toggle_framelimit"]))
+                {
                     frameLimitEnabled = !frameLimitEnabled;
                     toast(fmt::format("Frame limiter {}", frameLimitEnabled ? "enabled" : "disabled"));
                 }
-                if (button == Key(config.hotkeys["rewind_state"])) {
-                    if (state::rewindState(sys.get())) {
+                if (button == Key(config.hotkeys["rewind_state"]))
+                {
+                    if (state::rewindState(sys.get()))
+                    {
                         toast("Going back 1 second");
                     }
                 }
-                if (button == Key(config.hotkeys["toggle_fullscreen"])) {
+                if (button == Key(config.hotkeys["toggle_fullscreen"]))
+                {
                     bus.notify(Event::Gui::ToggleFullscreen{});
                 }
             }
-            if (event.type == SDL_DROPFILE) {
+            if (event.type == SDL_DROPFILE)
+            {
                 std::string path = event.drop.file;
                 SDL_free(event.drop.file);
 
-                bus.notify(Event::File::Load{ path });
+                bus.notify(Event::File::Load{path});
             }
-            if (event.type == SDL_WINDOWEVENT
-                && (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || event.window.event == SDL_WINDOWEVENT_RESIZED)) {
+            if (event.type == SDL_WINDOWEVENT && (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || event.window.event == SDL_WINDOWEVENT_RESIZED))
+            {
                 opengl->width = event.window.data1;
                 opengl->height = event.window.data2;
             }
@@ -432,12 +505,14 @@ int main(int argc, char** argv) {
             forceRedraw = true;
         }
 
-        if (sys->state == System::State::run) {
+        if (sys->state == System::State::run)
+        {
             sys->gpu->clear();
             sys->controller->update();
 
             sys->emulateFrame();
-            if (gui->singleFrame) {
+            if (gui->singleFrame)
+            {
                 gui->singleFrame = false;
                 sys->state = System::State::pause;
             }
@@ -456,7 +531,8 @@ int main(int argc, char** argv) {
 
         gui->statusFps = limitFramerate(frameLimitEnabled, sys->gpu->isNtsc());
     }
-    if (config.options.emulator.preserveState && sys->state != System::State::halted) {
+    if (config.options.emulator.preserveState && sys->state != System::State::halted)
+    {
         state::saveLastState(sys.get());
     }
     system_tools::saveMemoryCard(sys, 0, true);

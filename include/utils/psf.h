@@ -14,6 +14,11 @@
 
 #endif // TARGET_OS_IPHONE
 
-enum class PsfType { Main, MainLib, SecondaryLib };
+enum class PsfType
+{
+    Main,
+    MainLib,
+    SecondaryLib
+};
 
-bool loadPsf(System* sys, const std::string& file, PsfType type = PsfType::Main);
+bool loadPsf(System *sys, const std::string &file, PsfType type = PsfType::Main);

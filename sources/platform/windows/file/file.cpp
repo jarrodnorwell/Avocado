@@ -2,21 +2,25 @@
 
 #include <SDL.h>
 
-bool fileExists(const std::string &name) {
+bool fileExists(const std::string &name)
+{
     SDL_RWops *f = SDL_RWFromFile(name.c_str(), "r");
     bool exists = false;
-    if (f) {
+    if (f)
+    {
         exists = true;
         SDL_RWclose(f);
     }
     return exists;
 }
 
-std::vector<uint8_t> getFileContents(const std::string &name) {
+std::vector<uint8_t> getFileContents(const std::string &name)
+{
     std::vector<uint8_t> contents;
 
     SDL_RWops *f = SDL_RWFromFile(name.c_str(), "rb");
-    if (!f) return contents;
+    if (!f)
+        return contents;
 
     int size = SDL_RWsize(f);
 
@@ -27,9 +31,11 @@ std::vector<uint8_t> getFileContents(const std::string &name) {
     return contents;
 }
 
-bool putFileContents(const std::string &name, const std::vector<unsigned char> &contents) {
+bool putFileContents(const std::string &name, const std::vector<unsigned char> &contents)
+{
     SDL_RWops *f = SDL_RWFromFile(name.c_str(), "wb");
-    if (!f) return false;
+    if (!f)
+        return false;
 
     SDL_RWwrite(f, &contents[0], 1, contents.size());
 
@@ -38,9 +44,11 @@ bool putFileContents(const std::string &name, const std::vector<unsigned char> &
     return true;
 }
 
-bool putFileContents(const std::string &name, const std::string contents) {
+bool putFileContents(const std::string &name, const std::string contents)
+{
     SDL_RWops *f = SDL_RWFromFile(name.c_str(), "wb");
-    if (!f) return false;
+    if (!f)
+        return false;
 
     SDL_RWwrite(f, &contents[0], 1, contents.size());
 
@@ -49,11 +57,13 @@ bool putFileContents(const std::string &name, const std::string contents) {
     return true;
 }
 
-std::string getFileContentsAsString(const std::string &name) {
+std::string getFileContentsAsString(const std::string &name)
+{
     std::string contents;
 
     SDL_RWops *f = SDL_RWFromFile(name.c_str(), "rb");
-    if (!f) return contents;
+    if (!f)
+        return contents;
 
     SDL_RWseek(f, 0, SEEK_END);
     int filesize = SDL_RWtell(f);
@@ -66,9 +76,11 @@ std::string getFileContentsAsString(const std::string &name) {
     return contents;
 }
 
-size_t getFileSize(const std::string &name) {
+size_t getFileSize(const std::string &name)
+{
     SDL_RWops *f = SDL_RWFromFile(name.c_str(), "rb");
-    if (!f) return 0;
+    if (!f)
+        return 0;
 
     int size = SDL_RWsize(f);
     SDL_RWclose(f);
