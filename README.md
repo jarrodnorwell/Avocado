@@ -1,43 +1,41 @@
 <img src="assets/AppIcon.png" height=32 width=32 />
 
 # Avocado
-PlayStation 1 emulator built on Avocado by [@jaczekanski](https://github.com/jaczekanski)
+PlayStation 1 emulator built on [Avocado](https://github.com/jaczekanski/avocado) by [@jaczekanski](https://github.com/jaczekanski)
 
 ## Building
-> Commands even a baby could run
+> Instructions on how to build Avocado for all supported platforms
 
-[Go to Building](BUILDING.md)
+Go to the [BUILDING](BUILDING.md) documentation
 
 ## Changes
-### Avocado
+> List of stuff changed from the original Avocado
 
-> [!NOTE]
-> Fixes
+### Added
+- [x] Font & Symbols
+    - Added [Cousine](https://fonts.google.com/specimen/cousine) as the new font
+    - Added [Lucide](https://lucide.dev/icons) for the new symbols
+- [x] Portability Mode
+    - Added a check for a blank or filled out `data/config.json` file in the executable directory which toggles portability mode
 
-- Fixes an issue where Disney's Atlantis: The Lost Empire would freeze during the tutorial
-    - Whitmore's tutorial can now be passed and the game played
-- Fixes an issue where Gran Turismo 2 (Arcade Mode) would not boot
-    - Boots and runs correctly but not thoroughly tested
+### Changed
+- [x] Help > About Window
+    - Added previously unavailable information
+    - Added a new header and changed the overall design
+- [x] Repository File Structure
+    - Changed how the header and source files are structured
+    - Changed the build system to use just CMake
 
-> [!NOTE]
-> Updates
-
-- Updates most externals to their latest upstream versions
-
-> [!NOTE]
-> Miscellaneous
-
-- Restructure and simplification
-    - Added a TARGET_OS_IPHONE check for Cytrus support (unrelated)
-    - Restructured the externals, include and sources directories
-    - Transitioned to FetchContent for most externals
-
-### Externals
-#### EventBus
-- Restructure and simplification
-- Improved identifier and validation functions
+### Fixed
+- [x] Ape Escape 2
+    - Added a missing check between `0x1F801DA0` - `0x1F801DBF` in `spu.cpp`, as those addresses were unhandled for writes
+- [x] Gran Turismo 2 (Arcade Mode)
+    - Added a check for `0x1F801130` in `system.cpp`, as the game assumes there's a fourth timer at that address
+     
+### Miscellaneous
+- [x] Replaced the custom `lerp` function with `std::lerp`
 
 ## License
-Licensed under GPLv3
+> Avocado is licensed under GPLv3
 
-[Go to License](LICENSE.md)
+Read all about the [LICENSE](LICENSE.md)

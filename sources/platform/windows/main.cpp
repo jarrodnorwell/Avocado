@@ -28,6 +28,13 @@
 #include <unistd.h>
 #endif
 
+#if defined(_WIN32)
+    #include <windows.h>
+#elif defined(__linux__)
+    #include <unistd.h>
+    #include <limits.h>
+#endif
+
 #undef main
 
 // Warning: this method might have 1 or more milliseconds of inaccuracy.
@@ -188,9 +195,47 @@ void changeWorkingDirectory()
     std::filesystem::current_path(avocado::PATH_USER.c_str());
 }
 
-int main(int argc, char **argv)
-{
+std::pair<bool, fs::path> detectPortability() {
+#if defined(_WIN32)
+    wchar_t path[MAX_PATH]{0};
+    GetModuleFileNameW(nullptr, path, MAX_PATH);
+    fs::path ced{path};
+    fs::path cepd{ced.parent_path()};
+    return {
+        fs::exists(cepd / "data" / "config.json"),
+        cepd
+    };
+#else
+    return {}; // Unsupported platform
+#endif
+};
+
+void cwdDefault(fs::path&) {
     changeWorkingDirectory();
+};
+
+void cwdPortable(fs::path& cepd) {
+    avocado::PATH_DATA = avocado::PATH_USER = (cepd / "data").string();
+
+    avocado::PATH_DATA = avocado::PATH_USER = replaceAll(avocado::PATH_DATA, "\\", "/");
+
+    if (!endsWith(avocado::PATH_DATA, "/"))
+        avocado::PATH_DATA += "/";
+    avocado::PATH_USER = avocado::PATH_DATA;
+
+    fs::current_path(fs::path{avocado::PATH_DATA});
+};
+
+int main(int argc, char **argv) {
+#if defined(_WIN32)
+    auto [portable, parent_path] = detectPortability();
+    if (portable)
+        cwdPortable(parent_path);
+    else
+        cwdDefault(parent_path);
+#else
+    changeWorkingDirectory();
+#endif
 
     loadConfigFile();
 

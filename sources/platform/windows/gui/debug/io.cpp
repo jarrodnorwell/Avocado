@@ -41,7 +41,8 @@ namespace gui::debug
         ImGui::BeginChild("IO Log", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
-        ImGuiListClipper clipper((int)sys->ioLogList.size());
+        ImGuiListClipper clipper;
+        clipper.Begin((int)sys->ioLogList.size());
         while (clipper.Step())
         {
             for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
