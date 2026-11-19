@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 4.0)
 
 project(Avocado LANGUAGES C CXX)
 
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_CRT_SECURE_NO_WARNINGS")
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -9,7 +13,7 @@ endif()
 
 if (MSVC OR UNIX)
     if (UNIX)
-        add_compile_options(-Wall -Wextra -Wno-unused-variable)
+        add_compile_options(-Wall -Wextra -Wno-declaration-after-statement -Wno-unused-variable)
         set(OpenGL_GL_PREFERENCE GLVND)
     endif()
 
@@ -19,6 +23,7 @@ endif()
 include(FetchContent)
 
 FetchContent_Declare(cereal GIT_REPOSITORY https://github.com/uscilab/cereal GIT_TAG master)
+set(BUILD_SANDBOX OFF CACHE BOOL "" FORCE)
 set(SKIP_PERFORMANCE_COMPARISON ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(cereal)
 
@@ -50,7 +55,7 @@ FetchContent_MakeAvailable(nlohmann_json)
 set(SDL_SHARED ON CACHE BOOL "" FORCE)
 set(SDL_STATIC OFF CACHE BOOL "" FORCE)
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
-if (UNIX)
+if (UNIX AND NOT APPLE)
     find_package(SDL2 REQUIRED)
 else()
     FetchContent_Declare(SDL2 GIT_REPOSITORY https://github.com/libsdl-org/sdl GIT_TAG 25f9ed87ff6947d9576fc9d79dee0784e638ac58)
@@ -118,11 +123,31 @@ add_library(chdr STATIC
 target_include_directories(chdr PUBLIC externals/libchdr/src)
 target_link_libraries(chdr FLAC lzma miniz zlib)
 
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if (APPLE)
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE assets/data assets/AppIcon.icon)
 
-add_executable(${PROJECT_NAME} assets/app.rc)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.antique.${PROJECT_NAME}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+
+        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+    )
+
+    set_source_files_properties(assets/data PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources"
+    )
+
+    set_source_files_properties(assets/AppIcon.icon PROPERTIES
+        MACOSX_PACKAGE_LOCATION Resources
+    )
+elseif (MSVC)
+    add_executable(${PROJECT_NAME} assets/app.rc)
+else()
+    add_executable(${PROJECT_NAME})
+endif()
 
 if (MSVC OR UNIX)
     set(BUILD_INFO_FILE "${CMAKE_SOURCE_DIR}/include/version.h")
