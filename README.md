@@ -13,10 +13,10 @@ Go to the [BUILDING](BUILDING.md) documentation
 
 ### Added
 - [x] **Font & Symbols**
-    - Added [Cousine](https://fonts.google.com/specimen/cousine) as the new font
+    - Added [Cousine](https://fonts.google.com/specimen/Cousine) as the new font
     - Added [Lucide](https://lucide.dev/icons) for the new symbols
 - [x] **Portability Mode**
-    - Added a check for a blank or filled out `data/config.json` file in the executable directory which toggles portability mode
+    - Added a check for a `config.json` file in the executable directory under `data` which toggles portability mode
 
 ### Changed
 - [x] **Help > About Window**

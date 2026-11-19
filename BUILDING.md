@@ -2,7 +2,24 @@
 
 ## Terminal
 
+### Android
+> [!NOTE]
+> TODO
+
+### iOS
+> [!NOTE]
+> TODO
+
+### Linux
 ```sh
-cmake . -G "Visual Studio 18 2026" -DCMAKE_POLICY_VERSION_MINIMUM="3.5" -B build
-cmake --build build
+sh scripts/linux.sh
+```
+
+### macOS
+> [!NOTE]
+> TODO
+
+### Windows
+```sh
+.\scripts\windows.bat
 ```
